@@ -1,2 +1,63 @@
 @import "tailwindcss";
 
+@import "tailwindcss";
+
+
+
+:root {
+  /* Keep your original variables if you need them for raw CSS */
+  --finance-color: #34d399;      /* emerald-400 */
+  --health-color: #fb7185;       /* rose-400 */
+  --productivity-color: #c084fc; /* purple-400 */
+  
+  --finance-bg: #10b981;         /* emerald-500 */
+  --health-bg: #f43f5e;          /* rose-500 */
+  --productivity-bg: #a855f7;    /* purple-500 */
+}
+
+@theme {
+  /* Map them to Tailwind utilities */
+  --color-finance: var(--finance-color);
+  --color-health: var(--health-color);
+  --color-productivity: var(--productivity-color);
+
+  --color-finance-bold: var(--finance-bg);
+  --color-health-bold: var(--health-bg);
+  --color-productivity-bold: var(--productivity-bg);
+}
+
+@utility productivity-badge {
+  @apply px-2 py-1 bg-gray-800 rounded text-xs bg-productivity/20;
+}
+@utility finance-badge {
+  @apply px-2 py-1 bg-gray-800 rounded text-xs bg-finance/20;
+}
+
+@utility health-badge {
+  @apply px-2 py-1 bg-gray-800 rounded text-xs bg-health/20;
+}
+
+@utility default-sm-text{
+  @apply text-sm text-gray-400;
+}
+
+/* Use the variable in a custom class */
+.financeText {
+  color: var(--finance-color);
+}
+
+.healthText {
+  color: var(--health-color);
+}
+.productivityText {
+  color: var(--productivity-color);
+}
+.financeBg {
+  background-color: var(--finance-bg);
+}
+.healthBg {
+  background-color: var(--health-bg);
+}
+.productivityBg {
+  background-color: var(--productivity-bg);
+}
