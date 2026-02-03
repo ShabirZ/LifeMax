@@ -1,3 +1,5 @@
+import { X } from "lucide-react";
+
 const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
   return (
@@ -9,7 +11,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
       <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         <div className="flex justify-between items-center p-4 border-b border-slate-100">
           <h3 className="font-bold text-lg text-slate-800">{title}</h3>
-          <button onClick={onClose} className="p-1 hover:bg-slate-100 rounded-full transition">
+          <button onClick={onClose} className="p-1 hover:bg-red-50 rounded-full transition">
             <X size={20} className="text-slate-500" />
           </button>
         </div>

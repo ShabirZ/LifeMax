@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { CreditCard, FileText } from "lucide-react";
+import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 
 const TransactionEntry = ({ budgets, onAddTransaction }) => {
   const [amount, setAmount] = useState('');
@@ -14,7 +15,7 @@ const TransactionEntry = ({ budgets, onAddTransaction }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!amount || !desc || !selectedCat) return;
+    if (!amount || !desc || !selectedCat || amount < 0) return;
     
     onAddTransaction({
       amount: parseFloat(amount),
@@ -71,13 +72,12 @@ const TransactionEntry = ({ budgets, onAddTransaction }) => {
                 </select>
             </div>
         </div>
-
-        <button 
-          type="submit" 
-          className="w-full mt-2 bg-slate-800 text-white text-sm font-medium py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center justify-center gap-2"
-        >
-          <CreditCard size={16} /> Add Transaction
-        </button>
+        {/*className="w-full mt-2 bg-slate-800 text-white text-sm font-medium py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center justify-center gap-2"*/}
+        <InteractiveHoverButton 
+          type="submit"  
+          className="w-full mt-2  text-black text-sm font-medium py-2.5 rounded-lg hover:bg-slate-700 transition flex flex-col items-center justify-center gap-2"
+        > Add Transaction
+        </InteractiveHoverButton>
       </form>
     </div>
   );

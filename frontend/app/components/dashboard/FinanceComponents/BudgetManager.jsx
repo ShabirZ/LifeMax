@@ -2,8 +2,6 @@ import { useState } from "react";
 import { Plus, ChevronRight, ChevronLeft, Save, Trash2 } from "lucide-react";
 import Modal from "../../global/Modal";
 
-
-
 const BudgetManager = ({ budgets, onAddBudget, onUpdateBudget, onDeleteBudget }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [newCat, setNewCat] = useState('');

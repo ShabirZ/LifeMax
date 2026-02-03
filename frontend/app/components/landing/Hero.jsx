@@ -2,8 +2,9 @@ import { Link } from "react-router";
 import { Activity, Wallet, Zap, ArrowRight } from "lucide-react";
 import "../../app.css"
 import DashboardCard from "./DashboardCard";
-
 import { useState, useEffect } from 'react';
+import { AnimatedShinyText } from "@/components/ui/animated-shiny-text"
+
 
 const TypewriterHeadline = () => {
   const [text, setText] = useState("");
@@ -76,7 +77,8 @@ export default function Hero() {
     
         <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-20">
           <Link to="/signup" className="w-full md:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all shadow-[0_10px_40px_-10px_rgba(79,70,229,0.5)]">
-            Build Your Dashboard <ArrowRight size={18} />
+            <AnimatedShinyText className="text-white inline-flex items-center justify-center" shimmerWidth={100} >Build Your Dashboard</AnimatedShinyText>
+            <ArrowRight size={18} />
           </Link>
           <button className="w-full md:w-auto px-8 py-4 bg-[#1a1a1a] hover:bg-[#252525] border border-white/10 rounded-xl font-semibold transition-all">
             View Demo
