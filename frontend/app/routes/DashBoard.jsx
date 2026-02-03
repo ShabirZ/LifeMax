@@ -7,9 +7,17 @@ import {
   Settings, 
   LogOut 
 } from 'lucide-react';
-import DashboardCard from '../components/global/ContributionGraph';
-import ContributionGraph from '../components/global/ContributionGraph';
 
+import ContributionGraph from '../components/global/ContributionGraph';
+import HealthDashboard from '../components/dashboard/HealthDashboard';
+import FinanceDashboard from '../components/dashboard/FinanceDashboard';
+import ProductivityDashboard from '../components/dashboard/ProductivityDashboard';
+
+const DashboardCard = ({ children }) => (
+  <div className="p-6 bg-white rounded-lg shadow-sm border border-slate-200 h-96 flex flex-col items-center justify-center text-slate-400">
+    {children}
+  </div>
+);
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -25,29 +33,14 @@ const Dashboard = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'health':
-        return (
-          <div className="p-6 bg-white rounded-lg shadow-sm border border-slate-200 h-96 flex flex-col items-center justify-center text-slate-400">
-            <Activity size={48} className="mb-4 text-emerald-500" />
-            <h2 className="text-xl font-semibold text-slate-700">Health Dashboard</h2>
-            <p>Health metrics and visualizations will load here.</p>
-          </div>
-        );
+        return <HealthDashboard />;
+      
       case 'finance':
-        return (
-          <div className="p-6 bg-white rounded-lg shadow-sm border border-slate-200 h-96 flex flex-col items-center justify-center text-slate-400">
-            <DollarSign size={48} className="mb-4 text-blue-500" />
-            <h2 className="text-xl font-semibold text-slate-700">Finance Dashboard</h2>
-            <p>Budgeting and net worth tracking will load here.</p>
-          </div>
-        );
+        return <FinanceDashboard />;
+        
       case 'productivity':
-        return (
-          <div className="p-6 bg-white rounded-lg shadow-sm border border-slate-200 h-96 flex flex-col items-center justify-center text-slate-400">
-            <CheckCircle size={48} className="mb-4 text-violet-500" />
-            <h2 className="text-xl font-semibold text-slate-700">Productivity Dashboard</h2>
-            <p>Task tracking and commit history will load here.</p>
-          </div>
-        );
+        return <ProductivityDashboard />;
+
       default:
         return (
         <div className = "max-w-4xl">
@@ -67,7 +60,7 @@ const Dashboard = () => {
             </div>
             
             </div>
-            <ContributionGraph theme = "stone"/>
+            <ContributionGraph theme = "blue"/>
         </div>
         );
     }
