@@ -3,7 +3,11 @@ import Hero from "../components/landing/Hero.jsx";
 import Features from "../components/landing/Features";
 import Footer from "../components/landing/Footer";
 import { ProgressiveBlur } from "@/components/ui/progressive-blur"
+
+
 export default function LifeMaxLanding() {
+  const dashboardDemoUrl = "/dashboard";
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-indigo-500 selection:text-white font-sans overflow-x-hidden">
       <div>
@@ -14,7 +18,7 @@ export default function LifeMaxLanding() {
         </div>
 
         <Navbar />
-        <Hero />
+        <Hero dashboardDemoUrl={dashboardDemoUrl} />
         <Features />
         <Footer />
       </div>

@@ -4,7 +4,7 @@ import "../../app.css"
 import DashboardCard from "./DashboardCard";
 import { useState, useEffect } from 'react';
 import { AnimatedShinyText } from "@/components/ui/animated-shiny-text"
-
+import { useNavigate } from "react-router";
 
 const TypewriterHeadline = () => {
   const [text, setText] = useState("");
@@ -64,7 +64,11 @@ const TypewriterHeadline = () => {
     </h1>
   );
 };
-export default function Hero() {
+
+
+export default function Hero( props ) {
+  const { dashboardDemoUrl } = props;
+  const navigate = useNavigate();
   return (
     <section className="relative pt-48 pb-24 px-6 text-center">
       <div className="container mx-auto max-w-5xl">
@@ -80,7 +84,12 @@ export default function Hero() {
             <AnimatedShinyText className="text-white inline-flex items-center justify-center" shimmerWidth={100} >Build Your Dashboard</AnimatedShinyText>
             <ArrowRight size={18} />
           </Link>
-          <button className="w-full md:w-auto px-8 py-4 bg-[#1a1a1a] hover:bg-[#252525] border border-white/10 rounded-xl font-semibold transition-all">
+          <button 
+            className="w-full md:w-auto px-8 py-4 bg-[#1a1a1a] hover:bg-[#252525] border border-white/10 rounded-xl font-semibold transition-all"
+            onClick={() => {
+              navigate(dashboardDemoUrl);
+            }}
+          >
             View Demo
           </button>
         </div>
