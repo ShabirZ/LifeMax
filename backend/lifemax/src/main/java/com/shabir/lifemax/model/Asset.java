@@ -5,6 +5,19 @@ import org.hibernate.annotations.UpdateTimestamp;
 import jakarta.persistence.*;
 import java.time.LocalDateTime; 
 
+/**
+ * Asset Table
+ * Tracks total finances:
+ *  example: Robinhood portfolio : $10,000
+ *  example: Bank of America checking account: $5,000
+ *  example: silver: $2,000
+ *  example: cash: $1,000
+ * 
+ * 
+ * @author Shabir
+ * @since 1.0
+ */
+
 @Entity
 @Table(name = "assets")
 @IdClass(AssetId.class)
@@ -34,9 +47,7 @@ public class Asset {
     public Users getUser() {
         return user;
     }
-    public void setUser(Users user) {
-        this.user = user;
-    }
+
     public String getAssetName() {
         return assetName;
     }

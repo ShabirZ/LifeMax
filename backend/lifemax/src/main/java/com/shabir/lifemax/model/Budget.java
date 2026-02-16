@@ -3,6 +3,15 @@ package com.shabir.lifemax.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
+/**
+ * Budget Table  
+ * Allows users to set monthly budgets for different categories (e.g., "Groceries", "Entertainment") and track their spending against these budgets.
+ * 
+ * @author Shabir
+ * @since 1.0
+ */
+
+
 @Entity
 @Table(name = "budgets", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"user_id", "category_name"}) // Prevents duplicate "Groceries" for the same user
@@ -42,5 +51,4 @@ public class Budget {
     public void setBudgetAmount(BigDecimal budgetAmount) { this.budgetAmount = budgetAmount; }
 
     public Users getUser() { return user; }
-    public void setUser(Users user) { this.user = user; }
 }

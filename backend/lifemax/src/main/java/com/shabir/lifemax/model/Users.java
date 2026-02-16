@@ -3,6 +3,16 @@ package com.shabir.lifemax.model;
 import jakarta.persistence.*;
 import java.util.UUID;
 
+/**
+ * User Table Model
+ * Allows creation of user accounts with email + password || Google auth
+ * @author Shabir
+ * @since 1.0
+ * 
+ * TODO: Actually configure auth logic (e.g., password hashing, Google token verification) in the service layer. This is just the data model.
+ * Testing
+ */
+
 @Entity
 @Table(name = "users") // Maps 'User' class to 'users' table
 public class Users { // <--- Changed to Singular
