@@ -10,15 +10,24 @@ import {
   FieldSeparator,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { useState } from "react";
 
 export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <form>
-        <FieldGroup>
+      <form onSubmit={(e)=>{
+        e.preventDefault();
+        // Create function to do email auth for correct email
+        // Call Create account API here with email and password
+        setPassword("");
+        setEmail("");
+      }}>
+        <FieldGroup >
           <div className="flex flex-col items-center gap-2 text-center">
             <a
               href="#"
@@ -41,7 +50,10 @@ export function SignupForm({
               type="email"
               placeholder="m@example.com"
               required
+              onChange={ (e)=> setEmail(e.target.value)}
             />
+            <FieldLabel htmlFor="password">Password</FieldLabel>
+            <Input id="password" type="password" placeholder="********" required onChange={ (e)=> setPassword(e.target.value)} />
           </Field>
           <Field>
             <Button type="submit">Create Account</Button>
