@@ -14,8 +14,8 @@ import java.util.UUID;
  */
 
 @Entity
-@Table(name = "users") // Maps 'User' class to 'users' table
-public class Users { // <--- Changed to Singular
+@Table(name = "users") // Maps 'Users' class to 'users' table
+public class Users { 
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

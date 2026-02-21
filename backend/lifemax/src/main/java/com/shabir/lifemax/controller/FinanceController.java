@@ -9,5 +9,5 @@ public class FinanceController {
     public String HelloWorld() {
         return "Hello World";
     }
-    
+
 }
