@@ -6,10 +6,13 @@ import com.shabir.lifemax.model.Users;
 import com.shabir.lifemax.repository.UserRepository;
 import com.shabir.lifemax.dto.UserRequest;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    
+    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -20,12 +23,15 @@ public class UserService {
     }
 
     public void addUser(UserRequest userRequest) {
-        String firstName = userRequest.getFirstName();
-        String lastName = userRequest.getLastName();
-        String email = userRequest.getEmail();
-        String password = userRequest.getPassword();
-        // TODO: Hash the password before saving to the database
-        Users user = new Users(email, password, firstName, lastName);
+        String hashed = encoder.encode(userRequest.getPassword());
+        
+        Users user = new Users(
+            userRequest.getEmail(), 
+            hashed, 
+            userRequest.getFirstName(), 
+            userRequest.getLastName()
+        );
+        
         this.userRepository.save(user);
     }
 }
