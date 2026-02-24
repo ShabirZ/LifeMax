@@ -2,8 +2,9 @@ package com.shabir.lifemax.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -26,7 +27,8 @@ public class SecurityConfig {
             
             .authorizeHttpRequests(auth -> auth
                 // 2. This lets Postman hit the endpoint without a password
-                .requestMatchers("/api/users/createUser").permitAll() 
+                .requestMatchers("/api/users/createUser").permitAll()
+                .requestMatchers("/api/users/loginUser").permitAll() 
                 .anyRequest().authenticated()
             )
             .httpBasic(Customizer.withDefaults())
@@ -34,7 +36,11 @@ public class SecurityConfig {
             .build();
     }
 
-    // Leave your authenticationProvider bean uncommented so your passwords hash properly!
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+
+    }
 }
 /* 
 package com.shabir.lifemax.config;

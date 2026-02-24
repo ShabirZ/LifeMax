@@ -1,14 +1,14 @@
 package com.shabir.lifemax.dto;
 
-public class UserResponse {
+public class signupResponse {
     private Long id;
     private String email;
     private String firstName;
     private String lastName;
 
     // Constructors, Getters, and Setters
-    public UserResponse() {}
-    public UserResponse(Long id, String firstName, String lastName, String email) {
+    public signupResponse() {}
+    public signupResponse(Long id, String firstName, String lastName, String email) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;

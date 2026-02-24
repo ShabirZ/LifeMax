@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import com.shabir.lifemax.dto.UserResponse;
+import com.shabir.lifemax.dto.signupResponse;
 import com.shabir.lifemax.service.UserService;
 
 @RestController
@@ -21,19 +21,19 @@ public class UserController {
     }
 
     @PostMapping("/createUser")
-    public ResponseEntity<UserResponse> addUser(@RequestBody signupRequest signupRequest) {
+    public ResponseEntity<signupResponse> addUser(@RequestBody signupRequest signupRequest) {
 
         if (userService.existingEmail(signupRequest.getEmail())) {
             throw new IllegalArgumentException("Email already exists");
         }
         userService.addUser(signupRequest);
 
-        UserResponse userResponse = new UserResponse();
-        userResponse.setFirstName(signupRequest.getFirstName());
-        userResponse.setLastName(signupRequest.getLastName());
-        userResponse.setEmail(signupRequest.getEmail());
+        signupResponse signupResponse = new signupResponse();
+        signupResponse.setFirstName(signupRequest.getFirstName());
+        signupResponse.setLastName(signupRequest.getLastName());
+        signupResponse.setEmail(signupRequest.getEmail());
 
-        return ResponseEntity.ok(userResponse);
+        return ResponseEntity.ok(signupResponse);
     }
     
     @PostMapping("/loginUser")
