@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 import com.shabir.lifemax.model.Users;
 import com.shabir.lifemax.repository.UserRepository;
-import com.shabir.lifemax.dto.UserRequest;
+import com.shabir.lifemax.dto.signupRequest;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -22,14 +22,14 @@ public class UserService {
         return user != null;
     }
 
-    public void addUser(UserRequest userRequest) {
-        String hashed = encoder.encode(userRequest.getPassword());
+    public void addUser(signupRequest signupRequest) {
+        String hashed = encoder.encode(signupRequest.getPassword());
         
         Users user = new Users(
-            userRequest.getEmail(), 
+            signupRequest.getEmail(), 
             hashed, 
-            userRequest.getFirstName(), 
-            userRequest.getLastName()
+            signupRequest.getFirstName(), 
+            signupRequest.getLastName()
         );
         
         this.userRepository.save(user);
