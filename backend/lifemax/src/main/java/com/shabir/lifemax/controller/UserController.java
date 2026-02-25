@@ -1,6 +1,7 @@
 package com.shabir.lifemax.controller;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.shabir.lifemax.dto.loginRequest;
 import com.shabir.lifemax.dto.signupRequest;
 
 import org.springframework.http.ResponseEntity;
@@ -37,10 +38,9 @@ public class UserController {
     }
     
     @PostMapping("/loginUser")
-    public String postMethodName(@RequestBody signupRequest userRequest) {
+    public String postMethodName(@RequestBody loginRequest loginRequest) {
         //TODO: process POST request
-        System.out.println(userRequest);
-        return "User logged in successfully";
+        return userService.verify(loginRequest);
     }
     
 }
