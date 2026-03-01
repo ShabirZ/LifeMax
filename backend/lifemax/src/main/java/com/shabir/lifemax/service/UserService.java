@@ -52,7 +52,8 @@ public class UserService {
      public String verify(loginRequest loginRequest) {
         Authentication authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
         if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(loginRequest.getEmail()); 
+            Users user = userRepository.findByEmail(loginRequest.getEmail());
+            return jwtService.generateToken(user.getUid().toString()); 
             } else {
                 return "fail";
             }
