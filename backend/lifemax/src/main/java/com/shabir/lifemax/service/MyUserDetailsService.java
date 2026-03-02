@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import com.shabir.lifemax.model.Users;
 import com.shabir.lifemax.repository.UserRepository;
 import com.shabir.lifemax.model.UserPrincipal;
-
+import java.util.UUID;
 @Service
 public class MyUserDetailsService implements UserDetailsService {
 
@@ -25,6 +25,15 @@ public class MyUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("user not found");
         }
         
+        return new UserPrincipal(user);
+    }
+
+
+    public UserDetails loadUserByUid(UUID uid) {
+        Users user = userRepo.findByUid(uid);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found with UID: " + uid);
+        }
         return new UserPrincipal(user);
     }
 }

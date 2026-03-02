@@ -12,7 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,7 +22,8 @@ public class SecurityConfig {
 
     @Autowired
     private UserDetailsService userDetailsService;
-
+    @Autowired
+    private JwtFilter jwtFilter;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -31,12 +32,13 @@ public class SecurityConfig {
             
             .authorizeHttpRequests(auth -> auth
                 // 2. This lets Postman hit the endpoint without a password
-                .requestMatchers("/api/users/createUser").permitAll()
-                .requestMatchers("/api/users/loginUser").permitAll() 
+                .requestMatchers("/api/users/createUser", "/api/users/loginUser").permitAll()
+                .requestMatchers("/hello").authenticated()
                 .anyRequest().authenticated()
             )
             .httpBasic(Customizer.withDefaults())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
             .build();
     }
 

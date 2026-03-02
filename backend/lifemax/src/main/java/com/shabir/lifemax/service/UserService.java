@@ -49,7 +49,7 @@ public class UserService {
         this.userRepository.save(user);
     }
 
-     public String verify(loginRequest loginRequest) {
+    public String verify(loginRequest loginRequest) {
         Authentication authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
         if (authentication.isAuthenticated()) {
             Users user = userRepository.findByEmail(loginRequest.getEmail());
