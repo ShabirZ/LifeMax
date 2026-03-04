@@ -43,7 +43,6 @@ public class Budget {
 
 
     public Integer getId() { return id; }
-    
     public String getCategoryName() { return categoryName; }
     public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
 

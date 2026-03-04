@@ -39,7 +39,6 @@ public class UserController {
     
     @PostMapping("/loginUser")
     public String postMethodName(@RequestBody loginRequest loginRequest) {
-        //TODO: process POST request
         return userService.verify(loginRequest);
     }
     

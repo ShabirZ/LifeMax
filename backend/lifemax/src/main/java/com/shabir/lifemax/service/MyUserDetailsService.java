@@ -10,6 +10,7 @@ import com.shabir.lifemax.model.Users;
 import com.shabir.lifemax.repository.UserRepository;
 import com.shabir.lifemax.model.UserPrincipal;
 import java.util.UUID;
+
 @Service
 public class MyUserDetailsService implements UserDetailsService {
 
