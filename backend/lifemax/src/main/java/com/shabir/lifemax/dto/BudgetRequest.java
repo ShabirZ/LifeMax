@@ -6,7 +6,14 @@ public class BudgetRequest {
     private BigDecimal amount;
     private String category;
 
-    
+    BudgetRequest() {} // Default constructor for JSON deserialization
+    public BudgetRequest(BigDecimal amount, String category) {
+        this.amount = amount;
+        this.category = category;
+    }
+    public BudgetRequest(String category) {
+        this.category = category;
+    }
     // Getters and setters
 
     public BigDecimal getAmount() {

@@ -2,7 +2,6 @@ package com.shabir.lifemax.service;
 
 import org.springframework.stereotype.Service;
 import java.util.UUID;
-import java.util.List;
 
 import com.shabir.lifemax.model.Budget;
 import com.shabir.lifemax.model.Users;
@@ -11,6 +10,7 @@ import com.shabir.lifemax.repository.BudgetRepository;
 import com.shabir.lifemax.repository.UserRepository;
 
 import com.shabir.lifemax.dto.BudgetRequest;
+import jakarta.transaction.Transactional;
 
 @Service
 public class BudgetService {
@@ -37,6 +37,19 @@ public class BudgetService {
         );
 
         budgetRepository.save(newBudget);
+        return true;
+    }
+
+    @Transactional
+    public boolean deleteBudget(BudgetRequest request, UUID userId) {
+        // 1. Check if it exists first
+        if (!budgetRepository.existsByCategoryNameAndUserUid(request.getCategory(), userId)) {
+            System.out.println("Budget category not found for user: " + userId);
+            return false; 
+        }
+    
+        // 2. Perform the delete directly
+        budgetRepository.deleteByCategoryNameAndUserUid(request.getCategory(), userId);
         return true;
     }
 }
