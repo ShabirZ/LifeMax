@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -41,11 +43,13 @@ public class FinanceControllerTests {
         System.out.println("Generated JWT for testing: " + token); 
 
     }
-    
+    /*
+        TODO: Join create / delete tests
+    */
     @Test
     public void testCreateBudget_WithValidToken_ReturnsSuccess() throws Exception {
         Map<String, Object> dataPayload = Map.of(
-                "category", "food",
+                "category", "testing_data",
                 "amount", 200
             );
         String jsonRequest = objectMapper.writeValueAsString(dataPayload);
@@ -57,11 +61,27 @@ public class FinanceControllerTests {
             .andExpect(status().isCreated())
             .andExpect(content().string("Budget created successfully"));
     }
+     
+    @Test
+    public void testDeleteBudget_WithValidToken_ReturnsSuccess() throws Exception {
+        Map<String, Object> dataPayload = Map.of(
+                "category", "testing_data"
+            );
+        String jsonRequest = objectMapper.writeValueAsString(dataPayload);
+        mockMvc.perform(delete("/api/finance/deleteBudget")
+            .header("Authorization", "Bearer " + token)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonRequest))        
+            .andDo(org.springframework.test.web.servlet.result.MockMvcResultHandlers.print())
+            .andExpect(status().isCreated())
+            .andExpect(content().string("Budget deleted successfully"));
+    }
+
     @Test
     public void testUpdateBudget_ReturnSucess() throws Exception {
         Map<String, Object> dataPayload = Map.of(
                 "category", "food",
-                "amount", 300
+                "amount", 200
             );
         String jsonRequest = objectMapper.writeValueAsString(dataPayload);
         mockMvc.perform(patch("/api/finance/updateBudget")

@@ -1,4 +1,4 @@
-package com.shabir.lifemax.dto;
+package com.shabir.lifemax.dto.FinanceDTO;
 
 import java.math.BigDecimal;
 
@@ -6,7 +6,7 @@ public class BudgetRequest {
     private BigDecimal amount;
     private String category;
 
-    BudgetRequest() {} // Default constructor for JSON deserialization
+    BudgetRequest() {} 
     public BudgetRequest(BigDecimal amount, String category) {
         this.amount = amount;
         this.category = category;

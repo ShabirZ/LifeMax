@@ -1,4 +1,4 @@
-package com.shabir.lifemax.repository;
+package com.shabir.lifemax.repository.Finance;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;

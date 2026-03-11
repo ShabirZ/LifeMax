@@ -1,26 +1,25 @@
-package com.shabir.lifemax.controller;
+package com.shabir.lifemax.controller.Finance;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.shabir.lifemax.dto.FinanceDTO.BudgetRequest;
 import com.shabir.lifemax.model.UserPrincipal;
+import com.shabir.lifemax.service.Finance.BudgetService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import com.shabir.lifemax.dto.BudgetRequest;
-
-
-import com.shabir.lifemax.service.BudgetService;
 @RestController
 @RequestMapping("/api/finance")
-public class FinanceController {
+public class BudgetController {
 
     private final BudgetService budgetService; 
 
-    public FinanceController(BudgetService budgetService) {
+    public BudgetController(BudgetService budgetService) {
         this.budgetService = budgetService;
     }
 
