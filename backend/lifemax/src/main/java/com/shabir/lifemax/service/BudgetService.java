@@ -1,6 +1,9 @@
 package com.shabir.lifemax.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.UUID;
 
 import com.shabir.lifemax.model.Budget;
@@ -51,5 +54,19 @@ public class BudgetService {
         // 2. Perform the delete directly
         budgetRepository.deleteByCategoryNameAndUserUid(request.getCategory(), userId);
         return true;
+    }
+
+    @Transactional
+    public void updateBudget(BudgetRequest request, UUID userId) {
+
+        Budget existingBudget = budgetRepository.findByCategoryNameAndUserUid(request.getCategory(), userId);
+        if (existingBudget == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category does not exist");        
+        }
+        if(existingBudget.getBudgetAmount() == request.getAmount()) {
+            throw new IllegalArgumentException("New budget amount is the same as the current amount");
+        }
+        existingBudget.setBudgetAmount(request.getAmount());
+        budgetRepository.save(existingBudget);
     }
 }

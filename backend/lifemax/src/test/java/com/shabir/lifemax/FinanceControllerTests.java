@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -48,14 +49,29 @@ public class FinanceControllerTests {
                 "amount", 200
             );
         String jsonRequest = objectMapper.writeValueAsString(dataPayload);
-        // 2. Perform the request, injecting the generated token into the header
         mockMvc.perform(post("/api/finance/createBudget")
-            .header("Authorization", "Bearer " + token) // Using your JWT
-            .contentType(MediaType.APPLICATION_JSON)    // Telling Spring this is JSON
-            .content(jsonRequest))                      // Attaching the payload
+            .header("Authorization", "Bearer " + token)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonRequest))        
             .andDo(org.springframework.test.web.servlet.result.MockMvcResultHandlers.print())
             .andExpect(status().isCreated())
             .andExpect(content().string("Budget created successfully"));
     }
+    @Test
+    public void testUpdateBudget_ReturnSucess() throws Exception {
+        Map<String, Object> dataPayload = Map.of(
+                "category", "food",
+                "amount", 300
+            );
+        String jsonRequest = objectMapper.writeValueAsString(dataPayload);
+        mockMvc.perform(patch("/api/finance/updateBudget")
+            .header("Authorization", "Bearer " + token) 
+            .contentType(MediaType.APPLICATION_JSON)  
+            .content(jsonRequest))       
+            .andDo(org.springframework.test.web.servlet.result.MockMvcResultHandlers.print())
+            .andExpect(status().isOk())
+            .andExpect(content().string("Budget updated successfully"));
+    }
+
 
 }

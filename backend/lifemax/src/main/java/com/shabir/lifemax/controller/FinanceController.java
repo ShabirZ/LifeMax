@@ -1,6 +1,7 @@
 package com.shabir.lifemax.controller;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,13 +43,19 @@ public class FinanceController {
     public ResponseEntity<String> DeleteBudget(@RequestBody BudgetRequest budgetRequest, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         boolean response = budgetService.deleteBudget(budgetRequest, userPrincipal.getUid());
         
-        // return 400 if duplicate category, else return 201 (budget created)
+        // return 400 if category does not exist, else return 201 (budget deleted)
         if (!response) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                              .body("Category does not exist for this user");
         }
         return ResponseEntity.status(HttpStatus.CREATED)
                             .body("Budget deleted successfully");
+        
+    }
+    @PatchMapping("/updateBudget")
+    public ResponseEntity<String> UpdateBudget(@RequestBody BudgetRequest budgetRequest, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        budgetService.updateBudget(budgetRequest, userPrincipal.getUid());
+        return ResponseEntity.ok("Budget updated successfully");
         
     }
 }

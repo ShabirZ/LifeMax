@@ -57,3 +57,4 @@ build/
 
 **/application.properties
 
+**/secrets.json
