@@ -8,23 +8,21 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import com.shabir.lifemax.service.JWTService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import org.springframework.http.MediaType;
 
+
 @AutoConfigureMockMvc
 @SpringBootTest
-public class FinanceControllerTests {
+public class TransactionTests {
     @Autowired
     private MockMvc mockMvc;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -47,51 +45,23 @@ public class FinanceControllerTests {
         TODO: Join create / delete tests
     */
     @Test
-    public void testCreateBudget_WithValidToken_ReturnsSuccess() throws Exception {
+    public void CreateTransactionTest() throws Exception {
         Map<String, Object> dataPayload = Map.of(
-                "category", "testing_data",
-                "amount", 200
+                "amount", 18.75,
+                "category", "food",
+                "description", "Lunch at Chipotle",
+                "transactionDate", "2026-03-11"
             );
         String jsonRequest = objectMapper.writeValueAsString(dataPayload);
-        mockMvc.perform(post("/api/finance/createBudget")
+        mockMvc.perform(post("/api/finance/createTransaction")
             .header("Authorization", "Bearer " + token)
             .contentType(MediaType.APPLICATION_JSON)
             .content(jsonRequest))        
             .andDo(org.springframework.test.web.servlet.result.MockMvcResultHandlers.print())
             .andExpect(status().isCreated())
-            .andExpect(content().string("Budget created successfully"));
+            .andExpect(content().string("Transaction created successfully"));
     }
      
-    @Test
-    public void testDeleteBudget_WithValidToken_ReturnsSuccess() throws Exception {
-        Map<String, Object> dataPayload = Map.of(
-                "category", "testing_data"
-            );
-        String jsonRequest = objectMapper.writeValueAsString(dataPayload);
-        mockMvc.perform(delete("/api/finance/deleteBudget")
-            .header("Authorization", "Bearer " + token)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(jsonRequest))        
-            .andDo(org.springframework.test.web.servlet.result.MockMvcResultHandlers.print())
-            .andExpect(status().isCreated())
-            .andExpect(content().string("Budget deleted successfully"));
-    }
-
-    @Test
-    public void testUpdateBudget_ReturnSucess() throws Exception {
-        Map<String, Object> dataPayload = Map.of(
-                "category", "food",
-                "amount", 200
-            );
-        String jsonRequest = objectMapper.writeValueAsString(dataPayload);
-        mockMvc.perform(patch("/api/finance/updateBudget")
-            .header("Authorization", "Bearer " + token) 
-            .contentType(MediaType.APPLICATION_JSON)  
-            .content(jsonRequest))       
-            .andDo(org.springframework.test.web.servlet.result.MockMvcResultHandlers.print())
-            .andExpect(status().isOk())
-            .andExpect(content().string("Budget updated successfully"));
-    }
 
 
 }

@@ -3,6 +3,7 @@ package com.shabir.lifemax.model;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -20,12 +21,15 @@ public class Transactions {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer transaction_id;
+    private Integer transactionId;
     
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
-    @Column(name = "category", nullable = false)
+
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_name", nullable = false)
     private String category;
+
     @Column(name = "description", nullable = true)
     private String description;
 
@@ -34,20 +38,20 @@ public class Transactions {
     private Users user;
 
     @Column(nullable = false)
-    private LocalDateTime transactionDate;  // When it happened
+    private LocalDate transactionDate;  // When it happened
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;        // When saved in DB
+    private LocalDate createdAt;        // When saved in DB
 
     public Transactions() {}
-    public Transactions(BigDecimal amount, String category, String description, Users user, LocalDateTime timestamp) {
+    public Transactions(BigDecimal amount, String category, String description, Users user, LocalDate timestamp) {
         this.amount = amount;
         this.category = category;
         this.description = description;
         this.user = user;
         this.transactionDate = timestamp;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = LocalDate.now();
     }
     public BigDecimal getAmount() {
         return amount;
@@ -70,10 +74,13 @@ public class Transactions {
     public Users getUser() {
         return user;
     }
-    public LocalDateTime getTransactionDate() {
+    public void setUser(Users user) {
+        this.user = user;
+    }
+    public LocalDate getTransactionDate() {
         return transactionDate;
     }
-    public void setTransactionDate(LocalDateTime transactionDate) {
+    public void setTransactionDate(LocalDate transactionDate) {
         this.transactionDate = transactionDate;
     }
 
