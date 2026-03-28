@@ -9,6 +9,7 @@ import java.util.UUID;
 
 public interface BudgetRepository extends JpaRepository<Budget, Long> {
     List<Budget> findByUser(Users user);
+    List<Budget> findByUser_Uid(UUID userUid);
     boolean existsByCategoryNameAndUserUid(String categoryName, UUID userUid);
     void deleteByCategoryNameAndUserUid(String categoryName, UUID userUid);
     Budget findByCategoryNameAndUserUid(String categoryName, UUID userUid);

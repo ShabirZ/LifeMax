@@ -1,5 +1,6 @@
 package com.shabir.lifemax.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -33,6 +34,7 @@ public class Transactions {
     @Column(name = "description", nullable = true)
     private String description;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
@@ -53,6 +55,10 @@ public class Transactions {
         this.transactionDate = timestamp;
         this.createdAt = LocalDate.now();
     }
+    public Integer getTransactionId() {
+        return transactionId;
+    }
+
     public BigDecimal getAmount() {
         return amount;
     }
