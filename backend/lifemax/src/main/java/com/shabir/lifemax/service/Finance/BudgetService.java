@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.UUID;
 
 import com.shabir.lifemax.dto.FinanceDTO.BudgetRequest;
@@ -24,7 +25,10 @@ public class BudgetService {
         this.budgetRepository = budgetRepository;
         this.userRepository = userRepository;
     }
-
+    public List<Budget> getBudgets(UUID userId) {
+        return budgetRepository.findByUser_Uid(userId);
+    }
+    
     public boolean createBudget(BudgetRequest request, UUID userId) {
         
         Users userProxy = userRepository.getReferenceById(userId);
@@ -62,7 +66,7 @@ public class BudgetService {
         if (existingBudget == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category does not exist");        
         }
-        if(existingBudget.getBudgetAmount() == request.getAmount()) {
+        if(existingBudget.getBudgetAmount().compareTo(request.getAmount()) == 0) {
             throw new IllegalArgumentException("New budget amount is the same as the current amount");
         }
         existingBudget.setBudgetAmount(request.getAmount());

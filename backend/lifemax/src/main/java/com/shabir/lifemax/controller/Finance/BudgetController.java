@@ -5,14 +5,19 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import com.shabir.lifemax.dto.FinanceDTO.BudgetRequest;
+import com.shabir.lifemax.model.Budget;
 import com.shabir.lifemax.model.UserPrincipal;
 import com.shabir.lifemax.service.Finance.BudgetService;
+
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
 @RestController
 @RequestMapping("/api/finance")
 public class BudgetController {
@@ -23,7 +28,11 @@ public class BudgetController {
         this.budgetService = budgetService;
     }
 
-    
+    @GetMapping("/getBudgets")
+    public ResponseEntity<List<Budget>> GetBudgets(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<Budget> budgets = budgetService.getBudgets(userPrincipal.getUid());
+        return ResponseEntity.ok(budgets);
+    }
     @PostMapping("/createBudget")
     public ResponseEntity<String> CreateBudget(@RequestBody BudgetRequest budgetRequest, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         boolean response = budgetService.createBudget(budgetRequest, userPrincipal.getUid());
