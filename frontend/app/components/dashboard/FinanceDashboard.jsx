@@ -1,4 +1,4 @@
-import React, { useState, useMemo} from 'react';
+import React, { useState, useMemo, useEffect} from 'react';
 
 import { TrendingUp, DollarSign, Wallet } from 'lucide-react';
 
@@ -11,7 +11,8 @@ import BudgetAlerts from './FinanceComponents/BudgetAlerts';
 import SpendingBreakdown from './FinanceComponents/SpendingBreakdown';
 import SpendingTrend from './FinanceComponents/SpendingTrend';
 import WealthForecast from './FinanceComponents/WeatherForecast';
-
+import { fetchBudgets } from '~/services/budgetServices';
+import { fetchTrendData } from '~/services/transactionServices';
 // --- Mocks & Constants ---
 
 const COLORS = ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444', '#EC4899'];
@@ -44,22 +45,17 @@ const ContributionGraph = () => (
 
 export const FinanceDashboard = () => {
 
-  const [budgets, setBudgets] = useState([
-    { category: 'Food', limit: 600, spent: 450, status: 'ok' },
-    { category: 'Transport', limit: 500, spent: 450, status: 'warning' },
-    { category: 'Housing', limit: 2600, spent: 2500, status: 'ok' },
-  ]);
+  const [budgets, setBudgets] = useState([]);
+  const [trendData, setTrendData] = useState([]);
 
-
+ 
   const [transactions, setTransactions] = useState([]);
   const [investedAmount] = useState(2450); // Mocked invested amount
 
-  // Mock Data
-  const trendData = [
-    { date: 'Week 1', amount: 450 }, { date: 'Week 2', amount: 920 }, 
-    { date: 'Week 3', amount: 300 }, { date: 'Week 4', amount: 550 },
-  ];
-
+  useEffect(() => {
+    fetchBudgets().then(data => setBudgets(data)).catch(console.error);
+    fetchTrendData().then(data => setTrendData(data)).catch(console.error);
+  }, []);
   const mockWealthData = Array.from({ length: 40 }, (_, i) => ({
     age: 30 + i,
     optimistic: 145000 * Math.pow(1.07, i) + (2100 * 12 * i), 
@@ -71,20 +67,20 @@ export const FinanceDashboard = () => {
   };
 
   const updateBudget = (updatedBudget) => {
-    setBudgets(budgets.map(b => b.category === updatedBudget.category ? updatedBudget : b));
+    setBudgets(budgets.map(b => b.categoryName === updatedBudget.categoryName ? updatedBudget : b));
   };
 
   const deleteBudget = (categoryName) => {
-    setBudgets(budgets.filter(b => b.category !== categoryName));
+    setBudgets(budgets.filter(b => b.categoryName !== categoryName));
   };
 
   const addTransaction = (txn) => {
     const updatedBudgets = budgets.map(b => {
-      if (b.category === txn.category) {
+      if (b.categoryName === txn.category) {
         const newSpent = b.spent + txn.amount;
         let status = 'ok';
-        if (newSpent > b.limit) status = 'exceeded';
-        else if (newSpent > b.limit * 0.85) status = 'warning';
+        if (newSpent > b.budgetAmount) status = 'exceeded';
+        else if (newSpent > b.budgetAmount * 0.85) status = 'warning';
         return { ...b, spent: newSpent, status };
       }
       return b;
@@ -94,7 +90,7 @@ export const FinanceDashboard = () => {
   };
 
   const chartData = useMemo(() => {
-    const data = budgets.map(b => ({ name: b.category, value: b.spent }));
+    const data = budgets.map(b => ({ name: b.categoryName, value: b.spent }));
     return data.filter(d => d.value > 0);
   }, [budgets]);
 
@@ -111,7 +107,7 @@ export const FinanceDashboard = () => {
           <div className="flex items-center gap-2 mt-2">
             <DollarSign className="text-emerald-500" />
             <span className="text-2xl font-bold text-slate-800">
-              ${budgets.reduce((acc, curr) => acc + curr.limit, 0).toLocaleString()}
+              ${budgets.reduce((acc, curr) => acc + Number(curr.budgetAmount), 0).toLocaleString()}
             </span>
           </div>
         </div>
@@ -131,7 +127,7 @@ export const FinanceDashboard = () => {
           <div className="flex items-center gap-2 mt-2">
             <Wallet className="text-violet-500" />
             <span className="text-2xl font-bold text-slate-800">
-               ${(budgets.reduce((a, c) => a + c.limit, 0) - budgets.reduce((a, c) => a + c.spent, 0)).toLocaleString()}
+               ${(budgets.reduce((a, c) => a + Number(c.budgetAmount), 0) - budgets.reduce((a, c) => a + c.spent, 0)).toLocaleString()}
             </span>
           </div>
         </div>
@@ -176,7 +172,7 @@ export const FinanceDashboard = () => {
                        </div>
                        <div>
                           <p className="font-medium text-slate-700">{t.description}</p>
-                          <p className="text-xs text-slate-400">{t.category} • {t.date}</p>
+                          <p className="text-xs text-slate-400">{t.category} • {t.transactionDate}</p>
                        </div>
                     </div>
                     <span className="font-bold text-slate-700">-${t.amount.toFixed(2)}</span>
