@@ -14,9 +14,9 @@ const BudgetAlerts = ({ budgets }) => {
       <div className="mt-2 space-y-1">
         {critical.map((b, i) => (
           <div key={i} className="flex justify-between text-sm text-red-700">
-            <span>{b.category}</span>
+            <span>{b.categoryName}</span>
             <span className="font-medium">
-              ${b.spent.toLocaleString()} / ${b.limit.toLocaleString()} ({b.status === 'exceeded' ? 'OVER' : 'Near Limit'})
+              ${(b.spent ?? 0).toLocaleString()} / ${(b.budgetAmount ?? 0).toLocaleString()} ({b.status === 'exceeded' ? 'OVER' : 'Near Limit'})
             </span>
           </div>
         ))}

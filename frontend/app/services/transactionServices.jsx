@@ -1,4 +1,4 @@
-import { getTransactions, importTransactions } from "~/api/finance/transactionAPI";
+import { getTransactions, importTransactions, createTransaction as apiCreateTransaction } from "~/api/finance/transactionAPI";
 
 const toISODate = (date) => date.toISOString().split("T")[0];
 
@@ -44,4 +44,11 @@ export const fetchTrendData = async () => {
         amount,
     }));
 }
+
+export const createTransaction = async (transaction) => {
+    const response = await apiCreateTransaction(transaction);
+    if (!response.ok) {
+        throw new Error("Failed to add transaction");
+    }
+};
 

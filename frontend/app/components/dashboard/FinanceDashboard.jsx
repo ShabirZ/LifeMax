@@ -13,7 +13,7 @@ import SpendingBreakdown from './FinanceComponents/SpendingBreakdown';
 import SpendingTrend from './FinanceComponents/SpendingTrend';
 import WealthForecast from './FinanceComponents/WeatherForecast';
 import { fetchBudgets } from '~/services/budgetServices';
-import { fetchTrendData, uploadTransactionsCsv } from '~/services/transactionServices';
+import { fetchTrendData, uploadTransactionsCsv, createTransaction } from '~/services/transactionServices';
 // --- Mocks & Constants ---
 
 const COLORS = ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444', '#EC4899'];

@@ -1,31 +1,50 @@
 import { useState, useEffect } from "react";
-import { CreditCard, FileText } from "lucide-react";
+import { FileText } from "lucide-react";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
+import { createTransaction } from "~/services/transactionServices";
 
 const TransactionEntry = ({ budgets, onAddTransaction }) => {
   const [amount, setAmount] = useState('');
   const [desc, setDesc] = useState('');
   const [selectedCat, setSelectedCat] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (budgets.length > 0 && !selectedCat) {
-      setSelectedCat(budgets[0].category);
+      setSelectedCat(budgets[0].categoryName);
     }
   }, [budgets, selectedCat]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!amount || !desc || !selectedCat || amount < 0) return;
-    
-    onAddTransaction({
-      amount: parseFloat(amount),
-      description: desc,
-      category: selectedCat,
-      date: new Date().toLocaleDateString()
-    });
-    
-    setAmount('');
-    setDesc('');
+    if (!amount || !selectedCat || submitting) return;
+
+    const today = new Date();
+    const transactionDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+    setSubmitting(true);
+    setError(null);
+    try {
+      await createTransaction({
+        amount: parseFloat(amount),
+        category: selectedCat,
+        description: desc || null,
+        transactionDate,
+      });
+      onAddTransaction({
+        amount: parseFloat(amount),
+        category: selectedCat,
+        description: desc || null,
+        transactionDate,
+      });
+      setAmount('');
+      setDesc('');
+    } catch (err) {
+      setError('Failed to save transaction');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -67,16 +86,18 @@ const TransactionEntry = ({ budgets, onAddTransaction }) => {
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-emerald-500 outline-none"
                 >
                     {budgets.map((b, i) => (
-                        <option key={i} value={b.category}>{b.category}</option>
+                        <option key={i} value={b.categoryName}>{b.categoryName}</option>
                     ))}
                 </select>
             </div>
         </div>
-        {/*className="w-full mt-2 bg-slate-800 text-white text-sm font-medium py-2.5 rounded-lg hover:bg-slate-700 transition flex items-center justify-center gap-2"*/}
-        <InteractiveHoverButton 
-          type="submit"  
-          className="w-full mt-2  text-black text-sm font-medium py-2.5 rounded-lg hover:bg-slate-700 transition flex flex-col items-center justify-center gap-2"
-        > Add Transaction
+        {error && <p className="text-xs text-red-500">{error}</p>}
+        <InteractiveHoverButton
+          type="submit"
+          disabled={submitting}
+          className="w-full mt-2 text-black text-sm font-medium py-2.5 rounded-lg hover:bg-slate-700 transition flex flex-col items-center justify-center gap-2 disabled:opacity-50"
+        >
+          {submitting ? 'Saving...' : 'Add Transaction'}
         </InteractiveHoverButton>
       </form>
     </div>
