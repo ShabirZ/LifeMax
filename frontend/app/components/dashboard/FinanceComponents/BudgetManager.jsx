@@ -56,7 +56,7 @@ const BudgetManager = ({ budgets, onAddBudget, onUpdateBudget, onDeleteBudget })
             {budgets.slice(0, 3).map((b, i) => (
               <div key={i} className="flex justify-between text-xs text-slate-600 bg-slate-50 p-2 rounded">
                 <span>{b.category}</span>
-                <span className="font-medium">${b.limit.toLocaleString()}</span>
+                <span className="font-medium">${(b.limit ?? 0).toLocaleString()}</span>
               </div>
             ))}
             {budgets.length > 3 && <p className="text-xs text-center text-slate-400">+{budgets.length - 3} more</p>}
@@ -109,7 +109,7 @@ const BudgetManager = ({ budgets, onAddBudget, onUpdateBudget, onDeleteBudget })
                 >
                   <span className="font-medium text-slate-700">{b.category}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-slate-500">Limit: ${b.limit.toLocaleString()}</span>
+                    <span className="text-sm text-slate-500">Limit: ${(b.limit ?? 0).toLocaleString()}</span>
                     <ChevronRight size={16} className="text-slate-300 group-hover:text-slate-500" />
                   </div>
                 </div>

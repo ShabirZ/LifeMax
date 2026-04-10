@@ -1,4 +1,4 @@
-const TEST_AUTH = "<INSERT_TOKEN>";
+const TEST_AUTH = import.meta.env.VITE_TEST_AUTH;
 // temporary until we have auth working
 
 const API_BASE_URL = "http://localhost:8080/api/finance";

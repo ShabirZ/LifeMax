@@ -6,13 +6,14 @@ import Modal from "../global/Modal";
 import CsvUploader from "../global/CsvUploader";
 import BudgetManager from "./FinanceComponents/BudgetManager";
 import TransactionEntry from './FinanceComponents/TransactionEntry';
+import TransactionHistory from './FinanceComponents/TransactionHistory';
 import InvestedCard from './FinanceComponents/InvestedCard';
 import BudgetAlerts from './FinanceComponents/BudgetAlerts';
 import SpendingBreakdown from './FinanceComponents/SpendingBreakdown';
 import SpendingTrend from './FinanceComponents/SpendingTrend';
 import WealthForecast from './FinanceComponents/WeatherForecast';
 import { fetchBudgets } from '~/services/budgetServices';
-import { fetchTrendData } from '~/services/transactionServices';
+import { fetchTrendData, uploadTransactionsCsv } from '~/services/transactionServices';
 // --- Mocks & Constants ---
 
 const COLORS = ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444', '#EC4899'];
@@ -89,6 +90,13 @@ export const FinanceDashboard = () => {
     setTransactions([txn, ...transactions]);
   };
 
+  const handleCsvUpload = async (file) => {
+    const result = await uploadTransactionsCsv(file);
+    // Refresh trend data so the chart reflects newly imported transactions
+    fetchTrendData().then(data => setTrendData(data)).catch(console.error);
+    return result;
+  };
+
   const chartData = useMemo(() => {
     const data = budgets.map(b => ({ name: b.categoryName, value: b.spent }));
     return data.filter(d => d.value > 0);
@@ -136,18 +144,19 @@ export const FinanceDashboard = () => {
       {/* 3. Investment & Upload Row (2 Columns) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-40">
         <InvestedCard amount={investedAmount} />
-        <CsvUploader />
+        <CsvUploader onUpload={handleCsvUpload} />
       </div>
 
       {/* 4. Budgeting Action Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-         <BudgetManager 
-            budgets={budgets} 
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+         <BudgetManager
+            budgets={budgets}
             onAddBudget={addNewBudget}
             onUpdateBudget={updateBudget}
             onDeleteBudget={deleteBudget}
          />
          <TransactionEntry budgets={budgets} onAddTransaction={addTransaction} />
+         <TransactionHistory recentTransactions={transactions} />
       </div>
 
       {/* 5. Main Charts Grid */}
@@ -159,28 +168,6 @@ export const FinanceDashboard = () => {
       {/* 6. Spending Trend Graph */}
       <SpendingTrend data={trendData} />
 
-      {/* 7. Recent Transactions List */}
-      {transactions.length > 0 && (
-         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <h3 className="text-lg font-semibold text-slate-700 mb-4">Recent Transactions</h3>
-            <div className="space-y-3">
-               {transactions.map((t, i) => (
-                 <div key={i} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg animate-in fade-in slide-in-from-right-4">
-                    <div className="flex items-center gap-3">
-                       <div className="bg-white p-2 rounded-full border border-slate-200">
-                          <DollarSign size={16} className="text-slate-400" />
-                       </div>
-                       <div>
-                          <p className="font-medium text-slate-700">{t.description}</p>
-                          <p className="text-xs text-slate-400">{t.category} • {t.transactionDate}</p>
-                       </div>
-                    </div>
-                    <span className="font-bold text-slate-700">-${t.amount.toFixed(2)}</span>
-                 </div>
-               ))}
-            </div>
-         </div>
-      )}
 
       {/* 8. Consistency Section */}
       <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">

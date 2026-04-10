@@ -1,22 +1,26 @@
-import { getTransactions } from "~/api/finance/transactionAPI";
+import { getTransactions, importTransactions } from "~/api/finance/transactionAPI";
+
+const toISODate = (date) => date.toISOString().split("T")[0];
+
+export const getTransactionsByRange = async (start, end) => {
+    const response = await getTransactions(toISODate(start), toISODate(end));
+    if (!response.ok) throw new Error("Failed to fetch transactions");
+    return response.json();
+};
 
 export const getMonthlyTransactions = async () => {
-    const response = await getTransactions();
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return getTransactionsByRange(start, end);
+};
+
+export const uploadTransactionsCsv = async (file) => {
+    const response = await importTransactions(file);
     if (!response.ok) {
-        throw new Error("Failed to fetch transactions");
+        throw new Error("Failed to import CSV");
     }
-    const transactions = await response.json();
-
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
-    const endOfMonth = new Date(startOfMonth);
-    endOfMonth.setMonth(startOfMonth.getMonth() + 1);
-
-    return transactions.filter(txn => {
-        const txnDate = new Date(txn.transactionDate);
-        return txnDate >= startOfMonth && txnDate < endOfMonth;
-    });
+    return response.json(); // { imported: number, skipped: number }
 };
 
 export const fetchTrendData = async () => {

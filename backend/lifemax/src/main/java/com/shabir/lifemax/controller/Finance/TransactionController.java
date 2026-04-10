@@ -10,12 +10,15 @@ import org.springframework.web.multipart.MultipartFile;
 import com.shabir.lifemax.dto.FinanceDTO.CsvImportResponse;
 import com.shabir.lifemax.dto.FinanceDTO.TransactionRequest;
 import com.shabir.lifemax.dto.FinanceDTO.UpdateTransactionRequest;
+import com.shabir.lifemax.dto.FinanceDTO.WeeklySpendingEntry;
 import com.shabir.lifemax.model.Transactions;
 import com.shabir.lifemax.model.UserPrincipal;
 import com.shabir.lifemax.service.Finance.CsvImportService;
 import com.shabir.lifemax.service.Finance.TransactionService;
 
+import java.time.LocalDate;
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/finance")
@@ -37,8 +40,13 @@ public class TransactionController {
     }
 
     @GetMapping("/getTransactions")
-    public ResponseEntity<List<Transactions>> getTransactions(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        List<Transactions> transactions = transactionService.getTransactions(userPrincipal.getUid());
+    public ResponseEntity<List<Transactions>> getTransactions(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam(required = false) LocalDate start,
+            @RequestParam(required = false) LocalDate end) {
+        List<Transactions> transactions = (start != null && end != null)
+                ? transactionService.getTransactionsByDateRange(userPrincipal.getUid(), start, end)
+                : transactionService.getTransactions(userPrincipal.getUid());
         return ResponseEntity.ok(transactions);
     }
 
@@ -55,4 +63,11 @@ public class TransactionController {
         CsvImportResponse result = csvImportService.importTransactions(file, userPrincipal.getUid());
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/weeklySpending")
+    public ResponseEntity<List<WeeklySpendingEntry>> getWeeklySpending(
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return ResponseEntity.ok(transactionService.getWeeklySpending(userPrincipal.getUid()));
+    }
+    
 }

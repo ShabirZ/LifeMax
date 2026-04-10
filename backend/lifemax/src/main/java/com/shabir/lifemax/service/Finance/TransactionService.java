@@ -2,6 +2,7 @@ package com.shabir.lifemax.service.Finance;
 
 import com.shabir.lifemax.dto.FinanceDTO.TransactionRequest;
 import com.shabir.lifemax.dto.FinanceDTO.UpdateTransactionRequest;
+import com.shabir.lifemax.dto.FinanceDTO.WeeklySpendingEntry;
 import com.shabir.lifemax.repository.Finance.BudgetRepository;
 import com.shabir.lifemax.repository.UserRepository;
 import com.shabir.lifemax.repository.Finance.TransactionRepository;
@@ -11,8 +12,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -47,6 +54,10 @@ public class TransactionService {
         return transactionRepository.findByUser_Uid(userId);
     }
 
+    public List<Transactions> getTransactionsByDateRange(UUID userId, LocalDate start, LocalDate end) {
+        return transactionRepository.findByUser_UidAndTransactionDateBetween(userId, start, end);
+    }
+
     public void updateTransaction(UpdateTransactionRequest request, UUID userId) {
         Transactions existing = transactionRepository
                 .findByTransactionIdAndUser_Uid(request.getTransactionId(), userId)
@@ -70,5 +81,23 @@ public class TransactionService {
         }
 
         transactionRepository.save(existing);
+    }
+    public List<WeeklySpendingEntry> getWeeklySpending(UUID userId) {
+        LocalDate start = LocalDate.now().with(DayOfWeek.MONDAY);
+        LocalDate end = start.plusDays(6);
+
+        List<Transactions> transactions = transactionRepository
+                .findByUser_UidAndTransactionDateBetween(userId, start, end);
+
+        Map<String, BigDecimal> totals = transactions.stream()
+                .collect(Collectors.groupingBy(
+                        Transactions::getCategory,
+                        Collectors.reducing(BigDecimal.ZERO, Transactions::getAmount, BigDecimal::add)
+                ));
+
+        return totals.entrySet().stream()
+                .map(e -> new WeeklySpendingEntry(e.getKey(), e.getValue()))
+                .sorted(Comparator.comparing(WeeklySpendingEntry::getCategory))
+                .collect(Collectors.toList());
     }
 }

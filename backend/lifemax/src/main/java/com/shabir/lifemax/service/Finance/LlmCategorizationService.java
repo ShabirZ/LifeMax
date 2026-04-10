@@ -1,73 +1,66 @@
 package com.shabir.lifemax.service.Finance;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import com.google.genai.Client;
+import com.google.genai.types.GenerateContentConfig;
+import com.google.genai.types.GenerateContentResponse;
+
 import java.util.List;
-import java.util.Map;
+
 
 @Service
 public class LlmCategorizationService {
 
-    @Value("${anthropic.api.key}")
+    @Value("${gemini.api.key}")
     private String apiKey;
-
-    private final RestTemplate restTemplate = new RestTemplate();
-    private static final String API_URL = "https://api.anthropic.com/v1/messages";
 
     /**
      * Given a transaction description and list of existing budget categories,
      * returns either an exact category name or "NEW: <suggested name>" if none fit.
      */
-    @SuppressWarnings("unchecked")
     public String categorize(String description, List<String> existingCategories) {
         if (existingCategories.isEmpty()) {
             return "NEW: " + suggestCategoryName(description);
         }
 
         String categoriesList = String.join(", ", existingCategories);
-        String prompt = "Given this bank transaction description: \"" + description + "\", "
-                + "assign it to one of these budget categories: " + categoriesList + ". "
-                + "Reply with ONLY the exact category name. "
-                + "If none of the categories are a reasonable match, reply with \"NEW: <suggested category name>\" "
-                + "where you suggest a short, descriptive category name (2-3 words max).";
+        String prompt = "You are categorizing a bank transaction.\n\n"
+                + "Transaction description: \"" + description + "\"\n\n"
+                + "Existing categories: " + categoriesList + "\n\n"
+                + "Instructions:\n"
+                + "- If the transaction clearly belongs to one of the existing categories, reply with ONLY that exact category name.\n"
+                + "- If the transaction does not clearly fit an existing category, reply with \"NEW: <name>\" "
+                + "where <name> is a short (1-3 words) descriptive category name.\n"
+                + "- Do NOT force-fit a transaction into an existing category just because the list is small. "
+                + "It is perfectly fine to create a new category.\n"
+                + "- Reply with ONLY the category name or NEW: <name>. No explanation.";
 
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("x-api-key", apiKey);
-            headers.set("anthropic-version", "2023-06-01");
+            Client client = Client.builder().apiKey(apiKey).build();
+            GenerateContentConfig config = GenerateContentConfig.builder()
+                    .maxOutputTokens(20)
+                    .temperature(0.0f)
+                    .build();
+            GenerateContentResponse response = client.models.generateContent(
+                    "gemini-2.0-flash", prompt, config);
 
-            Map<String, Object> message = new HashMap<>();
-            message.put("role", "user");
-            message.put("content", prompt);
-
-            Map<String, Object> body = new HashMap<>();
-            body.put("model", "claude-haiku-4-5-20251001");
-            body.put("max_tokens", 50);
-            body.put("messages", List.of(message));
-
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-            Map<String, Object> response = restTemplate.postForObject(API_URL, entity, Map.class);
-
-            List<Map<String, Object>> content = (List<Map<String, Object>>) response.get("content");
-            String result = ((String) content.get(0).get("text")).trim();
-            return result;
+            String text = response.text();
+            if (text == null || text.isBlank()) {
+                System.err.println("LLM returned empty response for: " + description);
+                return existingCategories.get(0);
+            }
+            return text.trim();
 
         } catch (Exception e) {
-            System.err.println("LLM categorization failed for description \"" + description + "\": " + e.getMessage());
-            return "NEW: Uncategorized";
+            System.err.println("LLM categorization failed for \"" + description + "\": "
+                    + e.getClass().getSimpleName() + " - " + e.getMessage());
+            return existingCategories.get(0);
         }
     }
 
     private String suggestCategoryName(String description) {
-        // Simple fallback: take first meaningful word(s) from description
         String[] words = description.split("\\s+");
         if (words.length >= 2) {
             return words[0] + " " + words[1];

@@ -1,7 +1,9 @@
 # LifeMax TODO
 
+### CURRENT:
+
 ## Backend
-- [ ] GET /api/finance/getBudgets
+- [x] GET /api/finance/getBudgets
 - [ ] GET /api/finance/weeklySpending — aggregate transactions by week for current month
 - [ ] DELETE /api/finance/deleteTransaction
 

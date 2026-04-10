@@ -1,14 +1,15 @@
-const TEST_AUTH = "<INSERT_TOKEN>";
+const TEST_AUTH = import.meta.env.VITE_TEST_AUTH;
 // temporary until we have auth working
 
 const API_BASE_URL = "http://localhost:8080/api/finance";
 
 const apiFetch = async (endpoint, options = {}) => {
   const url = `${API_BASE_URL}/${endpoint}`;
+  const isFormData = options.body instanceof FormData;
   const response = await fetch(url, {
     ...options,
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       Authorization: `Bearer ${TEST_AUTH}`,
       ...options.headers,
     },
@@ -16,7 +17,10 @@ const apiFetch = async (endpoint, options = {}) => {
   return response;
 };
 
-export const getTransactions = () => apiFetch("getTransactions");
+export const getTransactions = (start, end) => {
+  const params = start && end ? `?start=${start}&end=${end}` : "";
+  return apiFetch(`getTransactions${params}`);
+};
 
 // body: { amount: number, category: string, transactionDate: string (YYYY-MM-DD), description?: string }
 export const createTransaction = (body) =>
@@ -30,9 +34,5 @@ export const updateTransaction = (body) =>
 export const importTransactions = (file) => {
   const formData = new FormData();
   formData.append("file", file);
-  return apiFetch("importTransactions", {
-    method: "POST",
-    body: formData,
-    headers: { Authorization: `Bearer ${TEST_AUTH}` }, // omit Content-Type so browser sets multipart boundary
-  });
+  return apiFetch("importTransactions", { method: "POST", body: formData });
 };

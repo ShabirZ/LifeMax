@@ -1,0 +1,10 @@
+ Details,Posting Date,Description,Amount,Type,Balance,Check or Slip #
+  DEBIT,03/24/2026,STARBUCKS COFFEE,-5.75,DEBIT_CARD,1234.50,                                                                                                                                        
+  DEBIT,03/25/2026,WHOLE FOODS MARKET,-62.40,DEBIT_CARD,1172.10,                                                                                                                                       DEBIT,03/26/2026,NETFLIX,-15.99,DEBIT_CARD,1156.11,                                                                                                                                                
+  DEBIT,03/27/2026,SHELL GAS STATION,-45.00,DEBIT_CARD,1111.11,                                                                                                                                      
+  DEBIT,03/28/2026,CHIPOTLE,-12.30,DEBIT_CARD,1098.81,
+  DEBIT,03/22/2026,AMAZON.COM,-89.99,DEBIT_CARD,1009.00,
+  DEBIT,03/21/2026,PLANET FITNESS,-25.00,DEBIT_CARD,919.00,
+  DEBIT,03/20/2026,CVS PHARMACY,-18.45,DEBIT_CARD,893.00,
+  DEBIT,03/19/2026,SPOTIFY,-9.99,DEBIT_CARD,875.00,
+  DEBIT,03/18/2026,UBER,-14.20,DEBIT_CARD,864.00,

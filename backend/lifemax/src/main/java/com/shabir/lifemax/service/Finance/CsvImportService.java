@@ -58,7 +58,7 @@ public class CsvImportService {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
              CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT
                      .builder()
-                     .setHeader("Details", "Posting Date", "Description", "Amount", "Type", "Balance", "Check or Slip #")
+                     .setHeader("Details", "Posting Date", "Description", "Amount", "Type", "Balance", "Check or Slip #", "Category")
                      .setSkipHeaderRecord(true)
                      .setTrim(true)
                      .build())) {
@@ -72,7 +72,17 @@ public class CsvImportService {
                     BigDecimal amount = new BigDecimal(amountStr);
                     LocalDate date = LocalDate.parse(dateStr, DATE_FORMAT);
 
-                    String category = resolveCategory(description, userId, errors);
+                    String providedCategory = null;
+                    try {
+                        String val = record.get("Category");
+                        if (val != null && !val.isBlank()) providedCategory = val.trim();
+                    } catch (IllegalArgumentException ignored) {
+                        // Column not present in this file
+                    }
+
+                    String category = (providedCategory != null)
+                            ? providedCategory
+                            : resolveCategory(description, userId, errors);
 
                     // Create budget if it doesn't exist yet
                     boolean budgetCreated = budgetService.createBudget(
