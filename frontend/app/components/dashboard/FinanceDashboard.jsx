@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect} from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 
 import { TrendingUp, DollarSign, Wallet } from 'lucide-react';
 
@@ -13,7 +13,7 @@ import SpendingBreakdown from './FinanceComponents/SpendingBreakdown';
 import SpendingTrend from './FinanceComponents/SpendingTrend';
 import WealthForecast from './FinanceComponents/WeatherForecast';
 import { fetchBudgets } from '~/services/budgetServices';
-import { fetchTrendData, uploadTransactionsCsv, createTransaction } from '~/services/transactionServices';
+import { fetchTrendData, uploadTransactionsCsv, getAllTransactions } from '~/services/transactionServices';
 // --- Mocks & Constants ---
 
 const COLORS = ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444', '#EC4899'];
@@ -48,14 +48,20 @@ export const FinanceDashboard = () => {
 
   const [budgets, setBudgets] = useState([]);
   const [trendData, setTrendData] = useState([]);
-
- 
   const [transactions, setTransactions] = useState([]);
   const [investedAmount] = useState(2450); // Mocked invested amount
 
+  const refreshTransactions = useCallback(async () => {
+    const txns = await getAllTransactions();
+    setTransactions(txns);
+    return txns;
+  }, []);
+
   useEffect(() => {
-    fetchBudgets().then(data => setBudgets(data)).catch(console.error);
-    fetchTrendData().then(data => setTrendData(data)).catch(console.error);
+    refreshTransactions()
+      .then(txns => fetchBudgets(txns).then(setBudgets))
+      .catch(console.error);
+    fetchTrendData().then(setTrendData).catch(console.error);
   }, []);
   const mockWealthData = Array.from({ length: 40 }, (_, i) => ({
     age: 30 + i,
@@ -75,25 +81,20 @@ export const FinanceDashboard = () => {
     setBudgets(budgets.filter(b => b.categoryName !== categoryName));
   };
 
-  const addTransaction = (txn) => {
-    const updatedBudgets = budgets.map(b => {
-      if (b.categoryName === txn.category) {
-        const newSpent = b.spent + txn.amount;
-        let status = 'ok';
-        if (newSpent > b.budgetAmount) status = 'exceeded';
-        else if (newSpent > b.budgetAmount * 0.85) status = 'warning';
-        return { ...b, spent: newSpent, status };
-      }
-      return b;
-    });
-    setBudgets(updatedBudgets);
-    setTransactions([txn, ...transactions]);
+  const handleTransactionSuccess = () => {
+    refreshTransactions()
+      .then(txns => fetchBudgets(txns).then(setBudgets))
+      .catch(console.error);
   };
 
   const handleCsvUpload = async (file) => {
     const result = await uploadTransactionsCsv(file);
-    // Refresh trend data so the chart reflects newly imported transactions
-    fetchTrendData().then(data => setTrendData(data)).catch(console.error);
+    refreshTransactions()
+      .then(txns => Promise.all([
+        fetchBudgets(txns).then(setBudgets),
+        fetchTrendData().then(setTrendData),
+      ]))
+      .catch(console.error);
     return result;
   };
 
@@ -155,8 +156,8 @@ export const FinanceDashboard = () => {
             onUpdateBudget={updateBudget}
             onDeleteBudget={deleteBudget}
          />
-         <TransactionEntry budgets={budgets} onAddTransaction={addTransaction} />
-         <TransactionHistory recentTransactions={transactions} />
+         <TransactionEntry budgets={budgets} onSuccess={handleTransactionSuccess} />
+         <TransactionHistory allTransactions={transactions} />
       </div>
 
       {/* 5. Main Charts Grid */}

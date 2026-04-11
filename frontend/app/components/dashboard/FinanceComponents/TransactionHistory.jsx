@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from "react";
-import { History, DollarSign, ChevronRight, Loader2, AlertCircle } from "lucide-react";
+import { useState, useMemo, useRef } from "react";
+import { History, DollarSign, ChevronRight } from "lucide-react";
 import Modal from "../../global/Modal";
-import { getTransactions } from "~/api/finance/transactionAPI";
 
 const CATEGORY_COLORS = [
   "bg-emerald-100 text-emerald-700",
@@ -46,88 +45,52 @@ const PRESETS = [
   { label: "Custom", getRange: null },
 ];
 
-const TransactionHistory = ({ recentTransactions = [] }) => {
+const filterByRange = (transactions, startStr, endStr) => {
+  const start = new Date(startStr);
+  const end = new Date(endStr + "T23:59:59");
+  return transactions
+    .filter(t => {
+      const d = new Date(t.transactionDate);
+      return d >= start && d <= end;
+    })
+    .sort((a, b) => new Date(b.transactionDate) - new Date(a.transactionDate));
+};
+
+const TransactionHistory = ({ allTransactions = [] }) => {
   const [isModalOpen, setModalOpen] = useState(false);
-  const [transactions, setTransactions] = useState([]);
-  const [status, setStatus] = useState("idle");
   const [activePreset, setActivePreset] = useState(0);
-  const [activeRange, setActiveRange] = useState(null); // { start: string, end: string }
+  // activeRange drives filtering; init to "this month" so the card preview is populated
+  const [activeRange, setActiveRange] = useState(() => PRESETS[0].getRange());
   const [customStart, setCustomStart] = useState(toLocalDate(new Date(new Date().getFullYear(), new Date().getMonth(), 1)));
   const [customEnd, setCustomEnd] = useState(toLocalDate(new Date()));
 
   const isCustom = activePreset === PRESETS.length - 1;
   const scrollRef = useRef(null);
 
-  // Load this month on mount so the card preview is populated
-  useEffect(() => {
-    const { start, end } = PRESETS[0].getRange();
-    loadTransactions(start, end);
-  }, []);
+  const filteredTransactions = useMemo(() => {
+    if (!activeRange) return [];
+    return filterByRange(allTransactions, activeRange.start, activeRange.end);
+  }, [allTransactions, activeRange]);
 
-  const loadTransactions = async (startStr, endStr) => {
-    setStatus("loading");
-    setTransactions([]);
-    setActiveRange({ start: startStr, end: endStr });
-    try {
-      const response = await getTransactions(startStr, endStr);
-      if (!response.ok) throw new Error();
-      const data = await response.json();
-      const start = new Date(startStr);
-      const end = new Date(endStr + "T23:59:59");
-      const filtered = data.filter(t => {
-        const d = new Date(t.transactionDate);
-        return d >= start && d <= end;
-      });
-      setTransactions(filtered.sort((a, b) => new Date(b.transactionDate) - new Date(a.transactionDate)));
-      setStatus("idle");
-    } catch {
-      setStatus("error");
-    }
-  };
+  const totalSpent = useMemo(
+    () => filteredTransactions.reduce((sum, t) => sum + Number(t.amount), 0),
+    [filteredTransactions]
+  );
 
-  const handleOpen = () => {
-    setModalOpen(true);
-    const preset = PRESETS[activePreset];
-    if (preset.getRange) {
-      const { start, end } = preset.getRange();
-      loadTransactions(start, end);
-    } else if (activeRange) {
-      // Custom was previously applied — reload the same range
-      loadTransactions(activeRange.start, activeRange.end);
-    }
-    // else: Custom selected but Apply never clicked — nothing to load yet
-  };
+  const handleOpen = () => setModalOpen(true);
 
   const handlePresetClick = (index) => {
     setActivePreset(index);
     if (PRESETS[index].getRange) {
-      const { start, end } = PRESETS[index].getRange();
-      loadTransactions(start, end);
+      setActiveRange(PRESETS[index].getRange());
     }
-    // Clicking Custom tab: don't auto-load, wait for Apply
+    // Custom tab: wait for Apply
   };
 
   const handleCustomApply = () => {
     if (!customStart || !customEnd) return;
-    loadTransactions(customStart, customEnd); // already YYYY-MM-DD strings
+    setActiveRange({ start: customStart, end: customEnd });
   };
-
-  // Merge locally-added transactions, filtered to the active date range
-  const activeStart = activeRange ? new Date(activeRange.start) : null;
-  const activeEnd = activeRange ? new Date(activeRange.end + "T23:59:59") : null;
-
-  const filteredRecent = recentTransactions.filter((t) => {
-    if (!activeStart || !activeEnd) return true;
-    const d = new Date(t.transactionDate);
-    return d >= activeStart && d <= activeEnd;
-  });
-
-  const allTransactions = [
-    ...filteredRecent,
-    ...transactions.filter(t => !filteredRecent.some(r => r.transactionId === t.transactionId)),
-  ].sort((a, b) => new Date(b.transactionDate) - new Date(a.transactionDate));
-
-  const totalSpent = allTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
 
   return (
     <>
@@ -153,13 +116,10 @@ const TransactionHistory = ({ recentTransactions = [] }) => {
           onClick={(e) => e.stopPropagation()}
           onWheel={(e) => e.stopPropagation()}
         >
-          {allTransactions.length === 0 && status !== "loading" && (
+          {filteredTransactions.length === 0 && (
             <p className="text-xs text-slate-400 text-center py-4">No transactions this month</p>
           )}
-          {status === "loading" && allTransactions.length === 0 && (
-            <p className="text-xs text-slate-400 text-center py-4">Loading...</p>
-          )}
-          {allTransactions.map((t, i) => (
+          {filteredTransactions.map((t, i) => (
             <div
               key={t.transactionId ?? i}
               className="flex justify-between items-center text-xs text-slate-600 bg-slate-50 hover:bg-slate-100 p-2 rounded-lg transition-colors"
@@ -225,71 +185,53 @@ const TransactionHistory = ({ recentTransactions = [] }) => {
           </div>
         )}
 
-        {status === "loading" && (
-          <div className="flex flex-col items-center justify-center py-12 gap-3 text-slate-400">
-            <Loader2 size={28} className="animate-spin" />
-            <span className="text-sm">Loading transactions...</span>
+        {isCustom && !activeRange && (
+          <div className="text-center py-12 text-slate-400">
+            <p className="text-sm">Select a date range and click Apply</p>
           </div>
         )}
 
-        {status === "error" && (
-          <div className="flex flex-col items-center justify-center py-12 gap-3 text-red-400">
-            <AlertCircle size={28} />
-            <span className="text-sm">Failed to load transactions</span>
-          </div>
-        )}
-
-        {status === "idle" && (
+        {(!isCustom || activeRange) && (
           <>
-            {isCustom && !activeRange && (
+            <div className="flex justify-between items-center mb-4 p-3 bg-slate-50 rounded-lg">
+              <span className="text-sm text-slate-500">{filteredTransactions.length} transaction{filteredTransactions.length !== 1 ? "s" : ""}</span>
+              <span className="font-bold text-slate-800">
+                ${totalSpent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+
+            {filteredTransactions.length === 0 ? (
               <div className="text-center py-12 text-slate-400">
-                <p className="text-sm">Select a date range and click Apply</p>
+                <DollarSign size={32} className="mx-auto mb-2 opacity-30" />
+                <p className="text-sm">No transactions in this period</p>
               </div>
-            )}
-
-            {(!isCustom || activeRange) && (
-              <>
-                <div className="flex justify-between items-center mb-4 p-3 bg-slate-50 rounded-lg">
-                  <span className="text-sm text-slate-500">{allTransactions.length} transaction{allTransactions.length !== 1 ? "s" : ""}</span>
-                  <span className="font-bold text-slate-800">
-                    ${totalSpent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-                </div>
-
-                {allTransactions.length === 0 ? (
-                  <div className="text-center py-12 text-slate-400">
-                    <DollarSign size={32} className="mx-auto mb-2 opacity-30" />
-                    <p className="text-sm">No transactions in this period</p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {allTransactions.map((t, i) => (
-                      <div
-                        key={t.transactionId ?? i}
-                        className="flex items-center justify-between p-3 border border-slate-100 rounded-lg hover:bg-slate-50 transition-colors"
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="bg-white p-2 rounded-full border border-slate-200 shrink-0">
-                            <DollarSign size={14} className="text-slate-400" />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-medium text-slate-700 text-sm truncate">{t.description || "—"}</p>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${categoryColor(t.category)}`}>
-                                {t.category}
-                              </span>
-                              <span className="text-xs text-slate-400">{t.transactionDate}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <span className="font-bold text-slate-700 text-sm shrink-0 ml-3">
-                          -${Math.abs(Number(t.amount)).toFixed(2)}
-                        </span>
+            ) : (
+              <div className="space-y-2">
+                {filteredTransactions.map((t, i) => (
+                  <div
+                    key={t.transactionId ?? i}
+                    className="flex items-center justify-between p-3 border border-slate-100 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="bg-white p-2 rounded-full border border-slate-200 shrink-0">
+                        <DollarSign size={14} className="text-slate-400" />
                       </div>
-                    ))}
+                      <div className="min-w-0">
+                        <p className="font-medium text-slate-700 text-sm truncate">{t.description || "—"}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${categoryColor(t.category)}`}>
+                            {t.category}
+                          </span>
+                          <span className="text-xs text-slate-400">{t.transactionDate}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <span className="font-bold text-slate-700 text-sm shrink-0 ml-3">
+                      -${Math.abs(Number(t.amount)).toFixed(2)}
+                    </span>
                   </div>
-                )}
-              </>
+                ))}
+              </div>
             )}
           </>
         )}

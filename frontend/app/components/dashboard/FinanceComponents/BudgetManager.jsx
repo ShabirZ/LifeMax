@@ -36,6 +36,9 @@ const BudgetManager = ({ budgets, onAddBudget, onUpdateBudget, onDeleteBudget })
     setEditingCategory(null);
   };
 
+  budgets.map((b, i) => (
+    console.log(`Budget: ${b.categoryName}, Limit: ${b.budgetAmount}, Spent: ${b.spent}, Status: ${b.status}`)
+  ));
   return (
     <>
       <div 
@@ -55,8 +58,8 @@ const BudgetManager = ({ budgets, onAddBudget, onUpdateBudget, onDeleteBudget })
           <div className="mt-4 space-y-2">
             {budgets.slice(0, 3).map((b, i) => (
               <div key={i} className="flex justify-between text-xs text-slate-600 bg-slate-50 p-2 rounded">
-                <span>{b.category}</span>
-                <span className="font-medium">${(b.limit ?? 0).toLocaleString()}</span>
+                <span>{b.categoryName}</span>
+                <span className="font-medium">${(b.budgetAmount ?? 0).toLocaleString()}</span>
               </div>
             ))}
             {budgets.length > 3 && <p className="text-xs text-center text-slate-400">+{budgets.length - 3} more</p>}
@@ -107,9 +110,10 @@ const BudgetManager = ({ budgets, onAddBudget, onUpdateBudget, onDeleteBudget })
                     onClick={() => startEditing(b)}
                     className="flex items-center justify-between p-3 border border-slate-100 rounded-lg hover:bg-slate-100 cursor-pointer group transition-colors"
                 >
-                  <span className="font-medium text-slate-700">{b.category}</span>
+
+                  <span className="font-medium text-slate-700">{b.categoryName} </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-slate-500">Limit: ${(b.limit ?? 0).toLocaleString()}</span>
+                    <span className="text-sm text-slate-500">Limit: ${(b.budgetAmount ?? 0).toLocaleString()}</span>
                     <ChevronRight size={16} className="text-slate-300 group-hover:text-slate-500" />
                   </div>
                 </div>

@@ -45,6 +45,12 @@ export const fetchTrendData = async () => {
     }));
 }
 
+export const getAllTransactions = async () => {
+    const response = await getTransactions();
+    if (!response.ok) throw new Error("Failed to fetch transactions");
+    return response.json();
+};
+
 export const createTransaction = async (transaction) => {
     const response = await apiCreateTransaction(transaction);
     if (!response.ok) {

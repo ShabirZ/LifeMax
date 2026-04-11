@@ -18,6 +18,7 @@ import com.shabir.lifemax.service.Finance.TransactionService;
 
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.format.annotation.DateTimeFormat;
 
 
 @RestController
@@ -42,8 +43,8 @@ public class TransactionController {
     @GetMapping("/getTransactions")
     public ResponseEntity<List<Transactions>> getTransactions(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestParam(required = false) LocalDate start,
-            @RequestParam(required = false) LocalDate end) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
         List<Transactions> transactions = (start != null && end != null)
                 ? transactionService.getTransactionsByDateRange(userPrincipal.getUid(), start, end)
                 : transactionService.getTransactions(userPrincipal.getUid());

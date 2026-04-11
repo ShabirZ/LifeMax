@@ -1,35 +1,21 @@
 import { getBudgets } from "../api/finance/budgetAPI";
-import { getTransactions } from "../api/finance/transactionAPI";
 
 const getStartOfCurrentMonth = () => {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
 };
 
-export const fetchBudgets = async () => {
-    /*
-        const [budgets, setBudgets] = useState([
-        { category: 'Food', limit: 600, spent: 450, status: 'ok' },
-        { category: 'Transport', limit: 500, spent: 450, status: 'warning' },
-        { category: 'Housing', limit: 2600, spent: 2500, status: 'ok' },
-        ]);
-    */
+export const fetchBudgets = async (transactions) => {
     const budgetRequest = await getBudgets();
     if (!budgetRequest.ok) {
         throw new Error("Failed to fetch budgets");
     }
     const budgetData = await budgetRequest.json();
 
-    const transactionRequest = await getTransactions();
-    if (!transactionRequest.ok) {
-        throw new Error("Failed to fetch transactions");
-    }
-    const transactionData = await transactionRequest.json();
-
     const startOfMonth = getStartOfCurrentMonth();
 
     const budgetsWithSpending = budgetData.map(budget => {
-        const spent = transactionData
+        const spent = transactions
             .filter(txn => txn.category === budget.categoryName)
             .filter(txn => new Date(txn.transactionDate) >= startOfMonth)
             .reduce((sum, txn) => sum + Number(txn.amount), 0);
@@ -40,6 +26,6 @@ export const fetchBudgets = async () => {
 
         return { ...budget, spent, status };
     });
-
+    console.log(budgetsWithSpending);
     return budgetsWithSpending;
 };

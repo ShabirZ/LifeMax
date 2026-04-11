@@ -3,7 +3,7 @@ import { FileText } from "lucide-react";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 import { createTransaction } from "~/services/transactionServices";
 
-const TransactionEntry = ({ budgets, onAddTransaction }) => {
+const TransactionEntry = ({ budgets, onSuccess }) => {
   const [amount, setAmount] = useState('');
   const [desc, setDesc] = useState('');
   const [selectedCat, setSelectedCat] = useState('');
@@ -32,14 +32,9 @@ const TransactionEntry = ({ budgets, onAddTransaction }) => {
         description: desc || null,
         transactionDate,
       });
-      onAddTransaction({
-        amount: parseFloat(amount),
-        category: selectedCat,
-        description: desc || null,
-        transactionDate,
-      });
       setAmount('');
       setDesc('');
+      onSuccess();
     } catch (err) {
       setError('Failed to save transaction');
     } finally {
