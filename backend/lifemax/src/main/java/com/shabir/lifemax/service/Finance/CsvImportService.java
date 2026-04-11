@@ -85,8 +85,9 @@ public class CsvImportService {
                             : resolveCategory(description, userId, errors);
 
                     // Create budget if it doesn't exist yet
+                    BigDecimal defaultBudgetLimit = new BigDecimal("100"); // Default limit for new categories
                     boolean budgetCreated = budgetService.createBudget(
-                            new BudgetRequest(BigDecimal.ZERO, category), userId);
+                            new BudgetRequest(defaultBudgetLimit, category), userId);
                     if (budgetCreated) {
                         budgetsCreated++;
                     }
