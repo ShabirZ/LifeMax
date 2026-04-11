@@ -1,5 +1,6 @@
 package com.shabir.lifemax.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
@@ -28,6 +29,7 @@ public class Budget {
     @Column(name = "budget_amount", nullable = false)
     private BigDecimal budgetAmount; 
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
