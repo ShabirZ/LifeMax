@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.genai.Client;
+import com.shabir.lifemax.util.StringUtils;
 import com.google.genai.types.GenerateContentConfig;
 import com.google.genai.types.GenerateContentResponse;
 
@@ -51,7 +52,7 @@ public class LlmCategorizationService {
                 System.err.println("LLM returned empty response for: " + description);
                 return existingCategories.get(0);
             }
-            return text.trim();
+            return StringUtils.capitalizeWords(text.trim());
 
         } catch (Exception e) {
             System.err.println("LLM categorization failed for \"" + description + "\": "

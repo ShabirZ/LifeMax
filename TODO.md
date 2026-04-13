@@ -4,8 +4,8 @@
 
 ## Backend
 - [x] GET /api/finance/getBudgets
-- [ ] GET /api/finance/weeklySpending — aggregate transactions by week for current month
-- [ ] DELETE /api/finance/deleteTransaction
+- [X] GET /api/finance/weeklySpending — aggregate transactions by week for current month
+- [X] DELETE /api/finance/deleteTransaction
 
 ## Frontend — Auth
 - [ ] Create /login page + login form (POST /api/users/loginUser, store JWT in localStorage)

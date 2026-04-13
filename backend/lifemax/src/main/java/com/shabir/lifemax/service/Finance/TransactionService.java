@@ -1,6 +1,7 @@
 package com.shabir.lifemax.service.Finance;
 
 import com.shabir.lifemax.dto.FinanceDTO.TransactionRequest;
+import com.shabir.lifemax.util.StringUtils;
 import com.shabir.lifemax.dto.FinanceDTO.UpdateTransactionRequest;
 import com.shabir.lifemax.dto.FinanceDTO.WeeklySpendingEntry;
 import com.shabir.lifemax.repository.Finance.BudgetRepository;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+
 @Service
 public class TransactionService {
 
@@ -38,8 +40,9 @@ public class TransactionService {
         if (!this.budgetRepository.existsByCategoryNameAndUserUid(request.getCategory(), userId)) {
             throw new IllegalArgumentException("Budget category not found for user: " + userId);
         }
+        
         Users userProxy = userRepository.getReferenceById(userId);
-
+        request.setCategory(StringUtils.capitalizeWords(request.getCategory()));
         Transactions newTransaction = new Transactions();
         newTransaction.setAmount(request.getAmount());
         newTransaction.setCategory(request.getCategory());
