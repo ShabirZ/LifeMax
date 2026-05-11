@@ -12,7 +12,7 @@ import BudgetAlerts from './FinanceComponents/BudgetAlerts';
 import SpendingBreakdown from './FinanceComponents/SpendingBreakdown';
 import SpendingTrend from './FinanceComponents/SpendingTrend';
 import WealthForecast from './FinanceComponents/WeatherForecast';
-import { fetchBudgets } from '~/services/budgetServices';
+import { fetchBudgets, deleteBudgetService, updateBudgetAmountService, updateBudgetNameService } from '~/services/budgetServices';
 import { fetchTrendData, uploadTransactionsCsv, getAllTransactions } from '~/services/transactionServices';
 // --- Mocks & Constants ---
 
@@ -63,22 +63,28 @@ export const FinanceDashboard = () => {
       .catch(console.error);
     fetchTrendData().then(setTrendData).catch(console.error);
   }, []);
-  const mockWealthData = Array.from({ length: 40 }, (_, i) => ({
-    age: 30 + i,
-    optimistic: 145000 * Math.pow(1.07, i) + (2100 * 12 * i), 
-  }));
-
   // Handlers
   const addNewBudget = (newBudget) => {
     setBudgets([...budgets, newBudget]);
   };
 
-  const updateBudget = (updatedBudget) => {
-    setBudgets(budgets.map(b => b.categoryName === updatedBudget.categoryName ? updatedBudget : b));
+  const handleUpdateBudgetAmount = async (categoryName, amount) => {
+    await updateBudgetAmountService(categoryName, amount);
+    const txns = await refreshTransactions();
+    const updated = await fetchBudgets(txns);
+    setBudgets(updated);
   };
 
-  const deleteBudget = (categoryName) => {
-    setBudgets(budgets.filter(b => b.categoryName !== categoryName));
+  const handleUpdateBudgetName = async (categoryName, newCategoryName) => {
+    await updateBudgetNameService(categoryName, newCategoryName);
+    const txns = await refreshTransactions();
+    const updated = await fetchBudgets(txns);
+    setBudgets(updated);
+  };
+
+  const handleDeleteBudget = async (categoryName) => {
+    await deleteBudgetService(categoryName);
+    setBudgets(prev => prev.filter(b => b.categoryName !== categoryName));
   };
 
   const handleTransactionSuccess = () => {
@@ -153,8 +159,9 @@ export const FinanceDashboard = () => {
          <BudgetManager
             budgets={budgets}
             onAddBudget={addNewBudget}
-            onUpdateBudget={updateBudget}
-            onDeleteBudget={deleteBudget}
+            onUpdateBudgetAmount={handleUpdateBudgetAmount}
+            onUpdateBudgetName={handleUpdateBudgetName}
+            onDeleteBudget={handleDeleteBudget}
          />
          <TransactionEntry budgets={budgets} onSuccess={handleTransactionSuccess} />
          <TransactionHistory allTransactions={transactions} />
@@ -163,7 +170,7 @@ export const FinanceDashboard = () => {
       {/* 5. Main Charts Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <SpendingBreakdown data={chartData} />
-        <WealthForecast data={mockWealthData} />
+        <WealthForecast />
       </div>
 
       {/* 6. Spending Trend Graph */}

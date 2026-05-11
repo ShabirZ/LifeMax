@@ -2,14 +2,14 @@ import { useState } from "react";
 import { Plus, ChevronRight, ChevronLeft, Save, Trash2 } from "lucide-react";
 import Modal from "../../global/Modal";
 
-const BudgetManager = ({ budgets, onAddBudget, onUpdateBudget, onDeleteBudget }) => {
+const BudgetManager = ({ budgets, onAddBudget, onUpdateBudgetAmount, onUpdateBudgetName, onDeleteBudget }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [newCat, setNewCat] = useState('');
   const [newLimit, setNewLimit] = useState('');
-  
-  // Editing State
-  const [editingCategory, setEditingCategory] = useState(null); 
+
+  const [editingCategory, setEditingCategory] = useState(null);
   const [editLimit, setEditLimit] = useState('');
+  const [editName, setEditName] = useState('');
 
   const handleAdd = (e) => {
     e.preventDefault();
@@ -21,28 +21,32 @@ const BudgetManager = ({ budgets, onAddBudget, onUpdateBudget, onDeleteBudget })
 
   const startEditing = (budget) => {
     setEditingCategory(budget);
-    setEditLimit(budget.limit);
+    setEditLimit(budget.budgetAmount);
+    setEditName(budget.categoryName);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveAmount = () => {
     if (!editingCategory) return;
-    onUpdateBudget({ ...editingCategory, limit: parseFloat(editLimit) });
+    onUpdateBudgetAmount(editingCategory.categoryName, parseFloat(editLimit));
+    setEditingCategory(null);
+  };
+
+  const handleSaveName = () => {
+    if (!editingCategory || editName === editingCategory.categoryName) return;
+    onUpdateBudgetName(editingCategory.categoryName, editName);
     setEditingCategory(null);
   };
 
   const handleDelete = () => {
     if (!editingCategory) return;
-    onDeleteBudget(editingCategory.category);
+    onDeleteBudget(editingCategory.categoryName);
     setEditingCategory(null);
   };
 
-  budgets.map((b, i) => (
-    console.log(`Budget: ${b.categoryName}, Limit: ${b.budgetAmount}, Spent: ${b.spent}, Status: ${b.status}`)
-  ));
   return (
     <>
-      <div 
-        className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between h-full group hover:border-emerald-300 transition-all cursor-pointer" 
+      <div
+        className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between h-full group hover:border-emerald-300 transition-all cursor-pointer"
         onClick={() => setModalOpen(true)}
       >
         <div>
@@ -70,26 +74,26 @@ const BudgetManager = ({ budgets, onAddBudget, onUpdateBudget, onDeleteBudget })
         </div>
       </div>
 
-      <Modal 
-        isOpen={isModalOpen} 
+      <Modal
+        isOpen={isModalOpen}
         onClose={() => {
-            setModalOpen(false);
-            setEditingCategory(null);
-        }} 
-        title={editingCategory ? `Edit ${editingCategory.category}` : "Manage Budget Categories"}
+          setModalOpen(false);
+          setEditingCategory(null);
+        }}
+        title={editingCategory ? `Edit ${editingCategory.categoryName}` : "Manage Budget Categories"}
       >
         {!editingCategory ? (
           <div className="animate-in slide-in-from-left-4 duration-200">
             <form onSubmit={handleAdd} className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
               <h4 className="text-sm font-semibold text-slate-700 mb-3">Add New Category</h4>
               <div className="flex gap-3 mb-3">
-                <input 
+                <input
                   className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
                   placeholder="Name"
                   value={newCat}
                   onChange={(e) => setNewCat(e.target.value)}
                 />
-                <input 
+                <input
                   className="w-24 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
                   placeholder="Limit"
                   type="number"
@@ -105,13 +109,12 @@ const BudgetManager = ({ budgets, onAddBudget, onUpdateBudget, onDeleteBudget })
             <div className="space-y-3">
               <h4 className="text-sm font-semibold text-slate-700">Active Categories (Click to Edit)</h4>
               {budgets.map((b, i) => (
-                <div 
-                    key={i} 
-                    onClick={() => startEditing(b)}
-                    className="flex items-center justify-between p-3 border border-slate-100 rounded-lg hover:bg-slate-100 cursor-pointer group transition-colors"
+                <div
+                  key={i}
+                  onClick={() => startEditing(b)}
+                  className="flex items-center justify-between p-3 border border-slate-100 rounded-lg hover:bg-slate-100 cursor-pointer group transition-colors"
                 >
-
-                  <span className="font-medium text-slate-700">{b.categoryName} </span>
+                  <span className="font-medium text-slate-700">{b.categoryName}</span>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-slate-500">Limit: ${(b.budgetAmount ?? 0).toLocaleString()}</span>
                     <ChevronRight size={16} className="text-slate-300 group-hover:text-slate-500" />
@@ -121,46 +124,67 @@ const BudgetManager = ({ budgets, onAddBudget, onUpdateBudget, onDeleteBudget })
             </div>
           </div>
         ) : (
-            <div className="space-y-6 animate-in slide-in-from-right-4 duration-200">
-                <button 
-                    onClick={() => setEditingCategory(null)}
-                    className="text-sm text-slate-500 flex items-center gap-1 hover:text-slate-800"
-                >
-                    <ChevronLeft size={16} /> Back to List
-                </button>
+          <div className="space-y-6 animate-in slide-in-from-right-4 duration-200">
+            <button
+              onClick={() => setEditingCategory(null)}
+              className="text-sm text-slate-500 flex items-center gap-1 hover:text-slate-800"
+            >
+              <ChevronLeft size={16} /> Back to List
+            </button>
 
-                <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
-                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Update Limit Amount</label>
-                    <div className="flex gap-3">
-                        <input 
-                            type="number" 
-                            value={editLimit}
-                            onChange={(e) => setEditLimit(e.target.value)}
-                            className="flex-1 border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 outline-none"
-                        />
-                        <button 
-                            onClick={handleSaveEdit}
-                            className="bg-emerald-600 text-white px-4 rounded-lg flex items-center gap-2 hover:bg-emerald-700 transition"
-                        >
-                            <Save size={18} /> Save
-                        </button>
-                    </div>
+            <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Rename Category</label>
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="flex-1 border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 outline-none"
+                  />
+                  <button
+                    onClick={handleSaveName}
+                    disabled={editName === editingCategory.categoryName}
+                    className="bg-emerald-600 text-white px-4 rounded-lg flex items-center gap-2 hover:bg-emerald-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <Save size={18} /> Save
+                  </button>
                 </div>
+              </div>
 
-                <div className="border-t border-slate-100 pt-6">
-                    <h4 className="text-sm font-semibold text-red-600 mb-2">Danger Zone</h4>
-                    <button 
-                        onClick={handleDelete}
-                        className="w-full border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 py-2 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2"
-                    >
-                        <Trash2 size={16} /> Delete Category
-                    </button>
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Update Limit Amount</label>
+                <div className="flex gap-3">
+                  <input
+                    type="number"
+                    value={editLimit}
+                    onChange={(e) => setEditLimit(e.target.value)}
+                    className="flex-1 border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 outline-none"
+                  />
+                  <button
+                    onClick={handleSaveAmount}
+                    className="bg-emerald-600 text-white px-4 rounded-lg flex items-center gap-2 hover:bg-emerald-700 transition"
+                  >
+                    <Save size={18} /> Save
+                  </button>
                 </div>
+              </div>
             </div>
+
+            <div className="border-t border-slate-100 pt-6">
+              <h4 className="text-sm font-semibold text-red-600 mb-2">Danger Zone</h4>
+              <button
+                onClick={handleDelete}
+                className="w-full border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 py-2 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2"
+              >
+                <Trash2 size={16} /> Delete Category
+              </button>
+            </div>
+          </div>
         )}
       </Modal>
     </>
   );
 };
 
-export default BudgetManager
+export default BudgetManager;

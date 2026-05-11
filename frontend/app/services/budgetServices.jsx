@@ -1,4 +1,4 @@
-import { getBudgets } from "../api/finance/budgetAPI";
+import { getBudgets, deleteBudget, updateBudgetAmount, updateBudgetName } from "../api/finance/budgetAPI";
 
 const getStartOfCurrentMonth = () => {
     const now = new Date();
@@ -28,4 +28,28 @@ export const fetchBudgets = async (transactions) => {
     });
     console.log(budgetsWithSpending);
     return budgetsWithSpending;
+};
+
+export const deleteBudgetService = async (categoryName) => {
+    const deleteResponse = await deleteBudget({ category: categoryName });
+    if (!deleteResponse.ok) {
+        throw new Error("Failed to delete budget");
+    }
+    return true;
+};
+
+export const updateBudgetAmountService = async (categoryName, amount) => {
+    const response = await updateBudgetAmount({ category: categoryName, amount });
+    if (!response.ok) {
+        throw new Error("Failed to update budget amount");
+    }
+    return true;
+};
+
+export const updateBudgetNameService = async (categoryName, newCategoryName) => {
+    const response = await updateBudgetName({ category: categoryName, newCategory: newCategoryName });
+    if (!response.ok) {
+        throw new Error("Failed to update budget name");
+    }
+    return true;
 };

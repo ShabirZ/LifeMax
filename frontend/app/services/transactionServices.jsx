@@ -58,3 +58,18 @@ export const createTransaction = async (transaction) => {
     }
 };
 
+export const getInvestmentStats = (transactions) => {
+    const investments = transactions.filter(t => t.category?.toLowerCase() === "investments");
+    if (investments.length === 0) return { avgMonthly: 0, monthCount: 0 };
+
+    const monthlyTotals = {};
+    investments.forEach(t => {
+        const key = t.transactionDate.substring(0, 7); // "YYYY-MM"
+        monthlyTotals[key] = (monthlyTotals[key] || 0) + Number(t.amount);
+    });
+
+    const months = Object.values(monthlyTotals);
+    const avgMonthly = months.reduce((sum, v) => sum + v, 0) / months.length;
+    return { avgMonthly: Math.round(avgMonthly * 100) / 100, monthCount: months.length };
+};
+

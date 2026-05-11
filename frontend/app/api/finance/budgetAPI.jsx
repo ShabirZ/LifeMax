@@ -27,5 +27,9 @@ export const deleteBudget = (body) =>
   apiFetch("deleteBudget", { method: "DELETE", body: JSON.stringify(body) });
 
 // body: { category: string, amount: number }
-export const updateBudget = (body) =>
-  apiFetch("updateBudget", { method: "PATCH", body: JSON.stringify(body) });
+export const updateBudgetAmount = (body) =>
+  apiFetch("updateBudgetAmount", { method: "PATCH", body: JSON.stringify(body) });
+
+// body: { category: string, newCategory: string }
+export const updateBudgetName = (body) =>
+  apiFetch("updateBudgetName", { method: "PATCH", body: JSON.stringify(body) });

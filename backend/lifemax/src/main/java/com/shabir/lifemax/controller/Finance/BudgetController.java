@@ -60,13 +60,20 @@ public class BudgetController {
                             .body("Budget deleted successfully");
         
     }
-    @PatchMapping("/updateBudget")
-    public ResponseEntity<String> UpdateBudget(@RequestBody BudgetRequest budgetRequest, @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        budgetService.updateBudget(budgetRequest, userPrincipal.getUid());
-        return ResponseEntity.ok("Budget updated successfully");
+    @PatchMapping("/updateBudgetAmount")
+    public ResponseEntity<String> UpdateBudgetAmount(@RequestBody BudgetRequest budgetRequest, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        budgetService.updateBudgetAmount(budgetRequest, userPrincipal.getUid());
+        return ResponseEntity.ok("Budget amount updated successfully");
         
     }
-}
+
+    @PatchMapping("/updateBudgetName")
+    public ResponseEntity<String> UpdateBudgetName(@RequestBody BudgetRequest budgetRequest, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        BudgetRequest newBudgetRequest = new BudgetRequest(budgetRequest.getNewCategory());
+        budgetService.updateBudgetName(newBudgetRequest, budgetRequest, userPrincipal.getUid());
+        return ResponseEntity.ok("Budget name updated successfully");
+    }
     
 
 
+}

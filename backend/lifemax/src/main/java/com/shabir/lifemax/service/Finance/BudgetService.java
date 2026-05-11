@@ -12,6 +12,7 @@ import com.shabir.lifemax.model.Budget;
 import com.shabir.lifemax.model.Users;
 import com.shabir.lifemax.repository.UserRepository;
 import com.shabir.lifemax.repository.Finance.BudgetRepository;
+import com.shabir.lifemax.repository.Finance.TransactionRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -20,10 +21,12 @@ public class BudgetService {
 
     private final BudgetRepository budgetRepository;
     private final UserRepository userRepository;
+    private final TransactionRepository transactionRepository;
 
-    public BudgetService(BudgetRepository budgetRepository, UserRepository userRepository) {
+    public BudgetService(BudgetRepository budgetRepository, UserRepository userRepository, TransactionRepository transactionRepository) {
         this.budgetRepository = budgetRepository;
         this.userRepository = userRepository;
+        this.transactionRepository = transactionRepository;
     }
     public List<Budget> getBudgets(UUID userId) {
         return budgetRepository.findByUser_Uid(userId);
@@ -60,7 +63,7 @@ public class BudgetService {
     }
 
     @Transactional
-    public void updateBudget(BudgetRequest request, UUID userId) {
+    public void updateBudgetAmount(BudgetRequest request, UUID userId) {
 
         Budget existingBudget = budgetRepository.findByCategoryNameAndUserUid(request.getCategory(), userId);
         if (existingBudget == null) {
@@ -70,6 +73,22 @@ public class BudgetService {
             throw new IllegalArgumentException("New budget amount is the same as the current amount");
         }
         existingBudget.setBudgetAmount(request.getAmount());
+        budgetRepository.save(existingBudget);
+    }
+    @Transactional
+    public void updateBudgetName(BudgetRequest request, BudgetRequest oldBudgetRequest, UUID userId) {
+
+        Budget existingBudget = budgetRepository.findByCategoryNameAndUserUid(oldBudgetRequest.getCategory(), userId);
+        
+        if (existingBudget == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category does not exist");        
+        }
+
+        if(existingBudget.getCategoryName().equals(request.getCategory())) {
+            throw new IllegalArgumentException("New category name is the same as the current name");
+        }
+        transactionRepository.updateCategoryForUser(request.getCategory(), oldBudgetRequest.getCategory(), userId);
+        existingBudget.setCategoryName(request.getCategory());
         budgetRepository.save(existingBudget);
     }
 }
