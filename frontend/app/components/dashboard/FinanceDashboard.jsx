@@ -177,13 +177,7 @@ export const FinanceDashboard = () => {
       <SpendingTrend data={trendData} />
 
 
-      {/* 8. Consistency Section */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-        <div className="mb-4">
-            <h3 className="text-lg font-semibold text-slate-700">Financial Consistency Streak</h3>
-        </div>
-        <ContributionGraph />
-      </div>
+      
     </div>
   );
 };
